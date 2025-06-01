@@ -1,0 +1,20 @@
+# Ignore environment variables
+.env
+
+# Ignore node modules
+node_modules/
+
+# Ignore build files (if any are created for deployment)
+dist/
+build/
+
+# Logs
+*.log
+logs/
+
+# Temporary OS or editor files
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
