@@ -15,6 +15,9 @@ connectDB();
 const authRoutes = require("./routes/authRoutes");
 app.use("/api/v1/auth", authRoutes); 
 
+const productRoutes = require("./routes/productRoutes");
+app.use("/api/products", productRoutes);
+
 app.get("/", (req, res) => {
   res.send("Welcome to SmartMart API");
 });
