@@ -8,9 +8,25 @@ const {
   deleteProduct,
 } = require("../controllers/productController");
 
+const{
+  getLowStockProducts,
+  getExpiringSoon,
+  getAutoReorderCandidates,
+  searchProducts,
+  getStockByCategory,
+} = require("../controllers/productAdvanceController");
+
+
 const { auth } = require("../middlewares/authMiddleware");
 
 // router.use(auth);
+
+//Inventory Management
+router.get("/low-stock", getLowStockProducts);
+router.get("/expiring-soon", getExpiringSoon);
+router.get("/auto-reorder", getAutoReorderCandidates);
+router.get("/search",searchProducts);
+router.get("/stock-summary", getStockByCategory);
 
 // CRUD Routes
 router.post("/", createProduct);         
