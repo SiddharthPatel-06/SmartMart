@@ -6,7 +6,7 @@ export function Select({ children, value, onValueChange, className = "" }) {
       value={value}
       onChange={(e) => onValueChange(e.target.value)}
       className={
-        "bg-gray-800 border border-gray-700 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 " +
+        "bg-transparent border border-white/10 text-white rounded-md px-3 py-2 appearance-none focus:outline-none focus:ring-1 focus:ring-white/20 " +
         className
       }
     >
@@ -16,5 +16,12 @@ export function Select({ children, value, onValueChange, className = "" }) {
 }
 
 export function SelectItem({ value, children }) {
-  return <option value={value}>{children}</option>;
+  return (
+    <option
+      value={value}
+      className="bg-[#1a1a1a] text-white"
+    >
+      {children}
+    </option>
+  );
 }

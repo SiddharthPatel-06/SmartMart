@@ -4,8 +4,10 @@ import { Card, CardContent } from "../components/ui/Card";
 import Button from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { Select, SelectItem } from "../components/ui/Select";
-import { Plus, Upload, Download, RefreshCw } from "lucide-react";
-import { FiPackage } from "react-icons/fi";
+// import { Plus, Upload, Download, RefreshCw } from "lucide-react";
+import { FiPackage} from "react-icons/fi";
+import { AiOutlineStock } from "react-icons/ai"
+import { FcExpired } from "react-icons/fc";
 
 // Backend base URL
 const API_BASE_URL = "http://localhost:4000";
@@ -83,34 +85,62 @@ export default function InventoryPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <Card>
           <CardContent className="p-4 bg-transparent border border-white/10 rounded-xl">
-  <div className="flex  justify-between mb-1">
-    <p className="text-muted-foreground ">Total Products</p>
-    <div className="bg-white/10 p-2 rounded-xl">
-      <FiPackage className="w-4 h-4 text-muted-foreground" />
-    </div>
-  </div>
+            <div className="flex  justify-between mb-1">
+              <p className="text-muted-foreground ">Total Products</p>
+              <div className="bg-white/10 p-2 rounded-xl">
+                <FiPackage className="w-4 h-4 text-muted-foreground" />
+              </div>
+            </div>
 
-  <h3 className="text-2xl font-bold text-white">{summary.total}</h3>
-  <p className="text-xs text-muted-foreground mt-1">All Inventory Items</p>
-</CardContent>
-
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-muted-foreground">Low Stock Items</p>
-            <h3 className="text-xl font-bold">{summary.lowStock}</h3>
+            <h3 className="text-2xl font-bold text-white">{summary.total}</h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              All Inventory Items
+            </p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-muted-foreground">Out of Stock</p>
-            <h3 className="text-xl font-bold">{summary.outOfStock}</h3>
+        <Card bgClass="bg-yellow-800/20">
+          <CardContent className="p-4 bg-transparent border border-white/10 rounded-xl">
+            <div className="flex  justify-between mb-1">
+              <p className="text-muted-foreground ">Low Stock Items</p>
+              <div className="bg-white/10 p-2 rounded-xl">
+                <AiOutlineStock className="w-4 h-4 text-muted-foreground" />
+              </div>
+            </div>
+
+            <h3 className="text-2xl font-bold text-white">{summary.lowStock}</h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              Needs Reordering
+            </p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-muted-foreground">Expiring Soon</p>
-            <h3 className="text-xl font-bold">{summary.expiringSoon}</h3>
+        <Card bgClass="bg-red-800/20">
+          <CardContent className="p-4 bg-transparent border border-white/10 rounded-xl">
+            <div className="flex  justify-between mb-1">
+              <p className="text-muted-foreground ">Out Of Stock</p>
+              <div className="bg-white/10 p-2 rounded-xl">
+                <FiPackage className="w-4 h-4 text-muted-foreground" />
+              </div>
+            </div>
+
+            <h3 className="text-2xl font-bold text-white">{summary.outOfStock}</h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              Currently Unavailable
+            </p>
+          </CardContent>
+        </Card>
+        <Card bgClass="bg-red-800/20">
+          <CardContent className="p-4 bg-transparent border border-white/10 rounded-xl">
+            <div className="flex  justify-between mb-1">
+              <p className="text-muted-foreground ">Expiring Soon</p>
+              <div className="bg-white/10 p-2 rounded-xl">
+                <FcExpired className="w-4 h-4 text-muted-foreground" />
+              </div>
+            </div>
+
+            <h3 className="text-2xl font-bold text-white">{summary.expiringSoon}</h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              Expiring soon
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -128,7 +158,7 @@ export default function InventoryPage() {
           <SelectItem value="in">In Stock</SelectItem>
           <SelectItem value="out">Out of Stock</SelectItem>
         </Select>
-        <Button
+        {/* <Button
           variant="outline"
           onClick={() => {
             fetchProducts();
@@ -145,7 +175,7 @@ export default function InventoryPage() {
         </Button>
         <Button>
           <Plus className="w-4 h-4 mr-2" /> Add Product
-        </Button>
+        </Button> */}
       </div>
 
       {/* Product Table */}

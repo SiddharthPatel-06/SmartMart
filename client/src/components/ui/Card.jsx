@@ -1,10 +1,10 @@
 import React from "react";
 
-export function Card({ children, className = "" }) {
+export function Card({ children, className = "", bgClass = "" }) {
   return (
     <div
       className={
-        "bg-gray-800 rounded-lg shadow-md border border-gray-700 overflow-hidden " +
+        `border border-white/10 rounded-lg shadow-md overflow-hidden ${bgClass} ` +
         className
       }
     >
@@ -14,5 +14,5 @@ export function Card({ children, className = "" }) {
 }
 
 export function CardContent({ children, className = "" }) {
-  return <div className={"p-4 " + className}>{children}</div>;
+  return <div className={"p-6 " + className}>{children}</div>;
 }
