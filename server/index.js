@@ -17,6 +17,9 @@ const profileRoutes = require("./routes/profileRoutes");
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/profile", profileRoutes);
 
+const productRoutes = require("./routes/productRoutes");
+app.use("/api/products", productRoutes);
+
 app.get("/", (req, res) => {
   res.send("Welcome to SmartMart API");
 });
