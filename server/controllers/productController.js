@@ -11,6 +11,23 @@ exports.createProduct = async (req, res) => {
   }
 };
 
+//bulk-upload
+exports.bulkUploadProducts = async (req, res) => {
+  try {
+    const products = req.body.products;
+
+    if (!Array.isArray(products) || products.length === 0) {
+      return res.status(400).json({ error: "No products to upload" });
+    }
+
+    const inserted = await Product.insertMany(products, { ordered: false });
+    res.status(201).json({ message: `${inserted.length} products added`, data: inserted });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
 // Get all products
 exports.getAllProducts = async (req, res) => {
   try {

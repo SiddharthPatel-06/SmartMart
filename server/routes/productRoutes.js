@@ -6,6 +6,7 @@ const {
   getProductById,
   updateProduct,
   deleteProduct,
+  bulkUploadProducts
 } = require("../controllers/productController");
 
 const{
@@ -29,7 +30,8 @@ router.get("/search",searchProducts);
 router.get("/stock-summary", getStockByCategory);
 
 // CRUD Routes
-router.post("/", createProduct);         
+router.post("/", createProduct);
+router.post("/bulk-upload",bulkUploadProducts);
 router.get("/", getAllProducts);         
 router.get("/:id", getProductById);      
 router.put("/:id", updateProduct);      
