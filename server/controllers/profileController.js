@@ -14,7 +14,7 @@ exports.getAllUsers = async (req, res) => {
 exports.updateProfile = async (req, res) => {
   try {
     const userId = req.params.id;
-    let updates = { ...req.body };
+    let updates = {};
 
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path, {
@@ -25,13 +25,27 @@ exports.updateProfile = async (req, res) => {
       updates["profile.profileImage"] = result.secure_url;
     }
 
-    const updatedUser = await User.findByIdAndUpdate(userId, updates, {
-      new: true,
+    const profileFields = ["firstName", "lastName", "contactNumber", "gender"];
+    profileFields.forEach((field) => {
+      if (req.body[field]) {
+        updates[`profile.${field}`] = req.body[field];
+      }
     });
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updates },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
     }
+
+    const freshUser = await User.findById(userId);
 
     res.status(200).json({
       message: "Profile updated successfully",
@@ -39,7 +53,10 @@ exports.updateProfile = async (req, res) => {
     });
   } catch (error) {
     console.error("Update Error:", error);
-    res.status(500).json({ message: "Something went wrong" });
+    res.status(500).json({
+      message: "Something went wrong",
+      error: error.message,
+    });
   }
 };
 

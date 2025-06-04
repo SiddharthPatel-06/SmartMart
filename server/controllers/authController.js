@@ -29,7 +29,24 @@ exports.signup = async (req, res) => {
 
     await Otp.deleteOne({ email });
 
-    res.status(201).json({ message: "Signup successful", userId: newUser._id });
+    const token = jwt.sign(
+      { id: newUser._id, role: newUser.role },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
+
+    res.status(201).json({
+      message: "Signup successfully",
+      token,
+      user: {
+        id: newUser._id,
+        email: newUser.email,
+        role: newUser.role,
+        profile: newUser.profile,
+      },
+    });
   } catch (error) {
     res.status(500).json({ message: "Signup failed", error: error.message });
   }
@@ -59,7 +76,7 @@ exports.login = async (req, res) => {
     );
 
     res.status(200).json({
-      message: "Login successful",
+      message: "Login successfully",
       token,
       user: {
         id: user._id,
