@@ -15,6 +15,9 @@ export default function InventoryPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState(""); // "", "in", "out"
   const [expiryFilter, setExpiryFilter] = useState(""); // "", "expiring-soon"
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [categories, setCategories] = useState([]);
+
   const [summary, setSummary] = useState({
     total: 0,
     lowStock: 0,
@@ -24,7 +27,6 @@ export default function InventoryPage() {
 
   const fetchProducts = async () => {
     try {
-      // Fetch all products regardless of stock status to filter client-side
       const { data } = await axios.get(`${API_BASE_URL}/api/products`);
       setProducts(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -35,7 +37,6 @@ export default function InventoryPage() {
 
   const fetchSummary = async () => {
     try {
-      // Fetch counts for summary cards
       const [allRes, lowRes, outRes, expiringRes] = await Promise.all([
         axios.get(`${API_BASE_URL}/api/products`),
         axios.get(`${API_BASE_URL}/api/products/low-stock`),
@@ -57,30 +58,41 @@ export default function InventoryPage() {
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const { data } = await axios.get(`${API_BASE_URL}/api/products/categories`);
+      setCategories(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to fetch categories:", err);
+      setCategories([]);
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
     fetchSummary();
+    fetchCategories();
   }, []);
 
-  // Filter products client-side combining search, stock filter, and expiry filter
   const filtered = Array.isArray(products)
     ? products.filter((p) => {
         const matchesSearch = p.name?.toLowerCase().includes(search.toLowerCase());
 
-        // Stock filter logic matching backend query param
         const matchesStatus =
           !statusFilter ||
           (statusFilter === "in" && p.quantity > 0) ||
           (statusFilter === "out" && p.quantity === 0);
 
-        // Expiry filter: check if product expiry is within next 7 days
         const matchesExpiry =
           !expiryFilter ||
           (expiryFilter === "expiring-soon" &&
             p.expiryDate &&
             new Date(p.expiryDate) <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
 
-        return matchesSearch && matchesStatus && matchesExpiry;
+        const matchesCategory =
+          !categoryFilter || p.category?.toLowerCase() === categoryFilter.toLowerCase();
+
+        return matchesSearch && matchesStatus && matchesExpiry && matchesCategory;
       })
     : [];
 
@@ -94,6 +106,7 @@ export default function InventoryPage() {
         Manage and track your product inventory
       </p>
 
+      {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <Card>
           <CardContent className="p-4 bg-transparent border border-white/10 rounded-xl">
@@ -150,7 +163,7 @@ export default function InventoryPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex items-center gap-2 mb-4 flex-wrap">
         <Input
           placeholder="Search products..."
           value={search}
@@ -167,6 +180,15 @@ export default function InventoryPage() {
         <Select value={expiryFilter} onValueChange={setExpiryFilter}>
           <SelectItem value="">All Expiry</SelectItem>
           <SelectItem value="expiring-soon">Expiring Soon (7 days)</SelectItem>
+        </Select>
+
+        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+          <SelectItem value="">All Categories</SelectItem>
+          {categories.map((cat) => (
+            <SelectItem key={cat} value={cat}>
+              {cat}
+            </SelectItem>
+          ))}
         </Select>
       </div>
 
@@ -197,7 +219,7 @@ export default function InventoryPage() {
                 <td className="p-2 font-medium">{item.name}</td>
                 <td className="p-2">{item.id}</td>
                 <td className="p-2">{item.category}</td>
-                <td className="p-2">${item.price}</td>
+                <td className="p-2">${item.price.toFixed(2)}</td>
                 <td className="p-2">
                   {item.expiryDate ? (
                     <span className="text-sm">

@@ -14,7 +14,7 @@ const{
   getExpiringSoon,
   getAutoReorderCandidates,
   searchProducts,
-  getStockByCategory,
+  getCategories,
 } = require("../controllers/productAdvanceController");
 
 
@@ -27,8 +27,7 @@ router.get("/low-stock", getLowStockProducts);
 router.get("/expiring-soon", getExpiringSoon);
 router.get("/auto-reorder", getAutoReorderCandidates);
 router.get("/search",searchProducts);
-router.get("/stock-summary", getStockByCategory);
-router.get("/categories", getStockByCategory);
+router.get("/categories", getCategories);
 
 // CRUD Routes
 router.post("/", createProduct);
