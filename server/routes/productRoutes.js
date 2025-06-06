@@ -28,6 +28,7 @@ router.get("/expiring-soon", getExpiringSoon);
 router.get("/auto-reorder", getAutoReorderCandidates);
 router.get("/search",searchProducts);
 router.get("/stock-summary", getStockByCategory);
+router.get("/categories", getStockByCategory);
 
 // CRUD Routes
 router.post("/", createProduct);

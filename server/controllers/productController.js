@@ -14,7 +14,7 @@ exports.createProduct = async (req, res) => {
 //bulk-upload
 exports.bulkUploadProducts = async (req, res) => {
   try {
-    const products = req.body.products;
+    const products = Array.isArray(req.body) ? req.body : req.body.products;
 
     if (!Array.isArray(products) || products.length === 0) {
       return res.status(400).json({ error: "No products to upload" });
@@ -28,15 +28,33 @@ exports.bulkUploadProducts = async (req, res) => {
 };
 
 
+
 // Get all products
+// exports.getAllProducts = async (req, res) => {
+//   try {
+//     const products = await Product.find().sort({ createdAt: -1 });
+//     res.status(200).json(products);
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// };
 exports.getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find().sort({ createdAt: -1 });
+    const filter = {};
+
+    if (req.query.stock === "0") {
+      filter.quantity = 0; // Out of stock
+    } else if (req.query.stock === "in") {
+      filter.quantity = { $gt: 0 }; // In stock
+    }
+
+    const products = await Product.find(filter);
     res.status(200).json(products);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 // Get single product by ID
 exports.getProductById = async (req, res) => {

@@ -4,18 +4,17 @@ import { Card, CardContent } from "../components/ui/Card";
 import Button from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { Select, SelectItem } from "../components/ui/Select";
-// import { Plus, Upload, Download, RefreshCw } from "lucide-react";
-import { FiPackage} from "react-icons/fi";
-import { AiOutlineStock } from "react-icons/ai"
+import { FiPackage } from "react-icons/fi";
+import { AiOutlineStock } from "react-icons/ai";
 import { FcExpired } from "react-icons/fc";
 
-// Backend base URL
 const API_BASE_URL = "http://localhost:4000";
 
 export default function InventoryPage() {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState(""); // "", "in", "out"
+  const [expiryFilter, setExpiryFilter] = useState(""); // "", "expiring-soon"
   const [summary, setSummary] = useState({
     total: 0,
     lowStock: 0,
@@ -25,6 +24,7 @@ export default function InventoryPage() {
 
   const fetchProducts = async () => {
     try {
+      // Fetch all products regardless of stock status to filter client-side
       const { data } = await axios.get(`${API_BASE_URL}/api/products`);
       setProducts(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -35,6 +35,7 @@ export default function InventoryPage() {
 
   const fetchSummary = async () => {
     try {
+      // Fetch counts for summary cards
       const [allRes, lowRes, outRes, expiringRes] = await Promise.all([
         axios.get(`${API_BASE_URL}/api/products`),
         axios.get(`${API_BASE_URL}/api/products/low-stock`),
@@ -61,14 +62,26 @@ export default function InventoryPage() {
     fetchSummary();
   }, []);
 
+  // Filter products client-side combining search, stock filter, and expiry filter
   const filtered = Array.isArray(products)
-    ? products.filter(
-        (p) =>
-          p.name?.toLowerCase().includes(search.toLowerCase()) &&
-          (!statusFilter ||
-            (statusFilter === "in" && p.stock > 0) ||
-            (statusFilter === "out" && p.stock === 0))
-      )
+    ? products.filter((p) => {
+        const matchesSearch = p.name?.toLowerCase().includes(search.toLowerCase());
+
+        // Stock filter logic matching backend query param
+        const matchesStatus =
+          !statusFilter ||
+          (statusFilter === "in" && p.quantity > 0) ||
+          (statusFilter === "out" && p.quantity === 0);
+
+        // Expiry filter: check if product expiry is within next 7 days
+        const matchesExpiry =
+          !expiryFilter ||
+          (expiryFilter === "expiring-soon" &&
+            p.expiryDate &&
+            new Date(p.expiryDate) <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
+
+        return matchesSearch && matchesStatus && matchesExpiry;
+      })
     : [];
 
   return (
@@ -81,66 +94,57 @@ export default function InventoryPage() {
         Manage and track your product inventory
       </p>
 
-      {/* Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <Card>
           <CardContent className="p-4 bg-transparent border border-white/10 rounded-xl">
-            <div className="flex  justify-between mb-1">
-              <p className="text-muted-foreground ">Total Products</p>
+            <div className="flex justify-between mb-1">
+              <p className="text-muted-foreground">Total Products</p>
               <div className="bg-white/10 p-2 rounded-xl">
                 <FiPackage className="w-4 h-4 text-muted-foreground" />
               </div>
             </div>
-
             <h3 className="text-2xl font-bold text-white">{summary.total}</h3>
             <p className="text-xs text-muted-foreground mt-1">
               All Inventory Items
             </p>
           </CardContent>
         </Card>
-        <Card bgClass="bg-yellow-800/20">
-          <CardContent className="p-4 bg-transparent border border-white/10 rounded-xl">
-            <div className="flex  justify-between mb-1">
-              <p className="text-muted-foreground ">Low Stock Items</p>
+        <Card>
+          <CardContent className="p-4 bg-yellow-800/10 border border-white/10 rounded-xl">
+            <div className="flex justify-between mb-1">
+              <p className="text-muted-foreground">Low Stock Items</p>
               <div className="bg-white/10 p-2 rounded-xl">
                 <AiOutlineStock className="w-4 h-4 text-muted-foreground" />
               </div>
             </div>
-
             <h3 className="text-2xl font-bold text-white">{summary.lowStock}</h3>
-            <p className="text-xs text-muted-foreground mt-1">
-              Needs Reordering
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">Needs Reordering</p>
           </CardContent>
         </Card>
-        <Card bgClass="bg-red-800/20">
-          <CardContent className="p-4 bg-transparent border border-white/10 rounded-xl">
-            <div className="flex  justify-between mb-1">
-              <p className="text-muted-foreground ">Out Of Stock</p>
+        <Card>
+          <CardContent className="p-4 bg-red-800/10 border border-white/10 rounded-xl">
+            <div className="flex justify-between mb-1">
+              <p className="text-muted-foreground">Out Of Stock</p>
               <div className="bg-white/10 p-2 rounded-xl">
                 <FiPackage className="w-4 h-4 text-muted-foreground" />
               </div>
             </div>
-
             <h3 className="text-2xl font-bold text-white">{summary.outOfStock}</h3>
             <p className="text-xs text-muted-foreground mt-1">
               Currently Unavailable
             </p>
           </CardContent>
         </Card>
-        <Card bgClass="bg-red-800/20">
-          <CardContent className="p-4 bg-transparent border border-white/10 rounded-xl">
-            <div className="flex  justify-between mb-1">
-              <p className="text-muted-foreground ">Expiring Soon</p>
+        <Card>
+          <CardContent className="p-4 bg-orange-800/10 border border-white/10 rounded-xl">
+            <div className="flex justify-between mb-1">
+              <p className="text-muted-foreground">Expiring Soon</p>
               <div className="bg-white/10 p-2 rounded-xl">
                 <FcExpired className="w-4 h-4 text-muted-foreground" />
               </div>
             </div>
-
             <h3 className="text-2xl font-bold text-white">{summary.expiringSoon}</h3>
-            <p className="text-xs text-muted-foreground mt-1">
-              Expiring soon
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">Expiring Soon</p>
           </CardContent>
         </Card>
       </div>
@@ -153,35 +157,23 @@ export default function InventoryPage() {
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-xs"
         />
+
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectItem value="">All</SelectItem>
+          <SelectItem value="">All Stock</SelectItem>
           <SelectItem value="in">In Stock</SelectItem>
           <SelectItem value="out">Out of Stock</SelectItem>
         </Select>
-        {/* <Button
-          variant="outline"
-          onClick={() => {
-            fetchProducts();
-            fetchSummary();
-          }}
-        >
-          <RefreshCw className="w-4 h-4 mr-2" /> Refresh
-        </Button>
-        <Button variant="outline">
-          <Upload className="w-4 h-4 mr-2" /> Import
-        </Button>
-        <Button variant="outline">
-          <Download className="w-4 h-4 mr-2" /> Export
-        </Button>
-        <Button>
-          <Plus className="w-4 h-4 mr-2" /> Add Product
-        </Button> */}
+
+        <Select value={expiryFilter} onValueChange={setExpiryFilter}>
+          <SelectItem value="">All Expiry</SelectItem>
+          <SelectItem value="expiring-soon">Expiring Soon (7 days)</SelectItem>
+        </Select>
       </div>
 
       {/* Product Table */}
-      <div className="rounded border overflow-x-auto mmax-h-[500px]">
+      <div className="rounded border overflow-x-auto max-h-[500px]">
         <table className="w-full text-sm table-auto">
-          <thead className="bg-muted text-left sticky top-0 z-10">
+          <thead className="bg-muted text-left sticky top-0 z-10 bg-neutral-900">
             <tr>
               <th className="p-2 bg-muted">Image</th>
               <th className="p-2 bg-muted">Product Name</th>
@@ -189,7 +181,7 @@ export default function InventoryPage() {
               <th className="p-2 bg-muted">Category</th>
               <th className="p-2 bg-muted">Price</th>
               <th className="p-2 bg-muted">Expiry</th>
-              <th className="p-2 bg-muted">Actions</th>
+              <th className="p-2 bg-muted">Stock</th>
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -216,13 +208,12 @@ export default function InventoryPage() {
                   )}
                 </td>
                 <td className="p-2">
-                  {item.stock === 0 ? (
+                  {item.quantity === 0 ? (
                     <span className="text-red-500">Out of Stock</span>
                   ) : (
                     <span className="text-green-500">In Stock</span>
                   )}
                 </td>
-                <td className="p-2 text-gray-500 text-sm">...</td>
               </tr>
             ))}
           </tbody>
