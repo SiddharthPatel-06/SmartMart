@@ -14,11 +14,17 @@ connectDB();
 
 const authRoutes = require("./routes/authRoutes");
 const profileRoutes = require("./routes/profileRoutes");
+const productRoutes = require("./routes/productRoutes");
+const cartRoutes = require("./routes/cartRoutes");
+const invoiceRoutes = require("./routes/invoiceRoutes");
+const martRoute = require("./routes/martRoute");
+
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/profile", profileRoutes);
-
-const productRoutes = require("./routes/productRoutes");
-app.use("/api/products", productRoutes);
+app.use("/api/v1/products", productRoutes);
+app.use("/api/v1/cart", cartRoutes);
+app.use("/api/v1/invoice", invoiceRoutes);
+app.use("/api/v1/marts", martRoute);
 
 app.get("/", (req, res) => {
   res.send("Welcome to SmartMart API");
