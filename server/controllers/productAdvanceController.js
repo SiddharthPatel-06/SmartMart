@@ -55,20 +55,10 @@ exports.searchProducts = async (req, res) => {
   }
 };
 
-// 5. Get category-wise stock summary
-exports.getStockByCategory = async (req, res) => {
+exports.getCategories = async (req, res) => {
   try {
-    const summary = await Product.aggregate([
-      {
-        $group: {
-          _id: "$category",
-          totalItems: { $sum: "$quantity" },
-          totalTypes: { $sum: 1 },
-        },
-      },
-      { $sort: { totalItems: -1 } },
-    ]);
-    res.status(200).json(summary);
+    const categories = await Product.distinct("category");
+    res.json(categories);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
