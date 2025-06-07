@@ -4,17 +4,19 @@ import { Card, CardContent } from "../components/ui/Card";
 import Button from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { Select, SelectItem } from "../components/ui/Select";
+import Modal from "../components/ui/Modal";
 import { FiPackage } from "react-icons/fi";
 import { AiOutlineStock } from "react-icons/ai";
 import { FcExpired } from "react-icons/fc";
+import { TbCategory } from "react-icons/tb";
 
 const API_BASE_URL = "http://localhost:4000";
 
 export default function InventoryPage() {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState(""); // "", "in", "out"
-  const [expiryFilter, setExpiryFilter] = useState(""); // "", "expiring-soon"
+  const [statusFilter, setStatusFilter] = useState("");
+  const [expiryFilter, setExpiryFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [categories, setCategories] = useState([]);
 
@@ -23,6 +25,22 @@ export default function InventoryPage() {
     lowStock: 0,
     outOfStock: 0,
     expiringSoon: 0,
+  });
+
+  const [showAddModal, setShowAddModal] = useState(false);
+
+  const [newProduct, setNewProduct] = useState({
+    name: "",
+    id: "",
+    description: "",
+    category: "",
+    price: "",
+    quantity: "",
+    reorderLevel: 5,
+    expiryDate: "",
+    supplier: "",
+    barcode: "",
+    imageUrl: "",
   });
 
   const fetchProducts = async () => {
@@ -60,7 +78,9 @@ export default function InventoryPage() {
 
   const fetchCategories = async () => {
     try {
-      const { data } = await axios.get(`${API_BASE_URL}/api/products/categories`);
+      const { data } = await axios.get(
+        `${API_BASE_URL}/api/products/categories`
+      );
       setCategories(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Failed to fetch categories:", err);
@@ -76,7 +96,9 @@ export default function InventoryPage() {
 
   const filtered = Array.isArray(products)
     ? products.filter((p) => {
-        const matchesSearch = p.name?.toLowerCase().includes(search.toLowerCase());
+        const matchesSearch = p.name
+          ?.toLowerCase()
+          .includes(search.toLowerCase());
 
         const matchesStatus =
           !statusFilter ||
@@ -87,14 +109,57 @@ export default function InventoryPage() {
           !expiryFilter ||
           (expiryFilter === "expiring-soon" &&
             p.expiryDate &&
-            new Date(p.expiryDate) <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
+            new Date(p.expiryDate) <=
+              new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
 
         const matchesCategory =
-          !categoryFilter || p.category?.toLowerCase() === categoryFilter.toLowerCase();
+          !categoryFilter ||
+          p.category?.toLowerCase() === categoryFilter.toLowerCase();
 
-        return matchesSearch && matchesStatus && matchesExpiry && matchesCategory;
+        return (
+          matchesSearch && matchesStatus && matchesExpiry && matchesCategory
+        );
       })
     : [];
+
+  const handleAddProductChange = (e) => {
+    const { name, value } = e.target;
+    setNewProduct((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleAddProductSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post(`${API_BASE_URL}/api/products`, {
+        ...newProduct,
+        price: parseFloat(newProduct.price),
+        quantity: parseInt(newProduct.quantity),
+        reorderLevel: parseInt(newProduct.reorderLevel),
+        expiryDate: newProduct.expiryDate
+          ? new Date(newProduct.expiryDate)
+          : null,
+      });
+      setShowAddModal(false);
+      setNewProduct({
+        name: "",
+        id: "",
+        description: "",
+        category: "",
+        price: "",
+        quantity: "",
+        reorderLevel: 5,
+        expiryDate: "",
+        supplier: "",
+        barcode: "",
+        imageUrl: "",
+      });
+      fetchProducts();
+      fetchSummary();
+    } catch (err) {
+      console.error("Failed to add product", err);
+      alert("Failed to add product");
+    }
+  };
 
   return (
     <div className="p-4">
@@ -130,8 +195,12 @@ export default function InventoryPage() {
                 <AiOutlineStock className="w-4 h-4 text-muted-foreground" />
               </div>
             </div>
-            <h3 className="text-2xl font-bold text-white">{summary.lowStock}</h3>
-            <p className="text-xs text-muted-foreground mt-1">Needs Reordering</p>
+            <h3 className="text-2xl font-bold text-white">
+              {summary.lowStock}
+            </h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              Needs Reordering
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -142,7 +211,9 @@ export default function InventoryPage() {
                 <FiPackage className="w-4 h-4 text-muted-foreground" />
               </div>
             </div>
-            <h3 className="text-2xl font-bold text-white">{summary.outOfStock}</h3>
+            <h3 className="text-2xl font-bold text-white">
+              {summary.outOfStock}
+            </h3>
             <p className="text-xs text-muted-foreground mt-1">
               Currently Unavailable
             </p>
@@ -156,40 +227,50 @@ export default function InventoryPage() {
                 <FcExpired className="w-4 h-4 text-muted-foreground" />
               </div>
             </div>
-            <h3 className="text-2xl font-bold text-white">{summary.expiringSoon}</h3>
+            <h3 className="text-2xl font-bold text-white">
+              {summary.expiringSoon}
+            </h3>
             <p className="text-xs text-muted-foreground mt-1">Expiring Soon</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-2 mb-4 flex-wrap">
-        <Input
-          placeholder="Search products..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="max-w-xs"
-        />
+      <div className="flex flex-wrap justify-between items-center gap-2 mb-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <Input
+            placeholder="Search products..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="max-w-xs"
+          />
 
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectItem value="">All Stock</SelectItem>
-          <SelectItem value="in">In Stock</SelectItem>
-          <SelectItem value="out">Out of Stock</SelectItem>
-        </Select>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectItem value="">All Stock</SelectItem>
+            <SelectItem value="in">In Stock</SelectItem>
+            <SelectItem value="out">Out of Stock</SelectItem>
+          </Select>
 
-        <Select value={expiryFilter} onValueChange={setExpiryFilter}>
-          <SelectItem value="">All Expiry</SelectItem>
-          <SelectItem value="expiring-soon">Expiring Soon (7 days)</SelectItem>
-        </Select>
-
-        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-          <SelectItem value="">All Categories</SelectItem>
-          {categories.map((cat) => (
-            <SelectItem key={cat} value={cat}>
-              {cat}
+          <Select value={expiryFilter} onValueChange={setExpiryFilter}>
+            <SelectItem value="">All Expiry</SelectItem>
+            <SelectItem value="expiring-soon">
+              Expiring Soon (7 days)
             </SelectItem>
-          ))}
-        </Select>
+          </Select>
+
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectItem value="">All Categories</SelectItem>
+            {categories.map((cat) => (
+              <SelectItem key={cat} value={cat}>
+                {cat}
+              </SelectItem>
+            ))}
+          </Select>
+        </div>
+
+        <div className="shrink-0">
+          <Button onClick={() => setShowAddModal(true)}>+ Add Product</Button>
+        </div>
       </div>
 
       {/* Product Table */}
@@ -211,7 +292,7 @@ export default function InventoryPage() {
               <tr key={item._id}>
                 <td className="p-2">
                   <img
-                    src={item.image || "/placeholder.png"}
+                    src={item.imageUrl || "/placeholder.png"}
                     alt="product"
                     className="w-10 h-10 rounded object-cover"
                   />
@@ -241,6 +322,101 @@ export default function InventoryPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Add Product Modal */}
+      {showAddModal && (
+        <Modal onClose={() => setShowAddModal(false)} title="Add New Product">
+          <form onSubmit={handleAddProductSubmit} className="space-y-4">
+            <Input
+              name="name"
+              placeholder="Product Name"
+              value={newProduct.name}
+              onChange={handleAddProductChange}
+              required
+            />
+            <Input
+              name="id"
+              placeholder="SKU / Product ID"
+              value={newProduct.id}
+              onChange={handleAddProductChange}
+              required
+            />
+            <Input
+              name="description"
+              placeholder="Description"
+              value={newProduct.description}
+              onChange={handleAddProductChange}
+            />
+            <Input
+              name="category"
+              placeholder="Category"
+              value={newProduct.category}
+              onChange={handleAddProductChange}
+              required
+            />
+            <Input
+              name="price"
+              placeholder="Price"
+              type="number"
+              step="0.01"
+              value={newProduct.price}
+              onChange={handleAddProductChange}
+              required
+            />
+            <Input
+              name="quantity"
+              placeholder="Quantity"
+              type="number"
+              value={newProduct.quantity}
+              onChange={handleAddProductChange}
+              required
+            />
+            <Input
+              name="reorderLevel"
+              placeholder="Reorder Level"
+              type="number"
+              value={newProduct.reorderLevel}
+              onChange={handleAddProductChange}
+            />
+            <Input
+              name="expiryDate"
+              placeholder="Expiry Date"
+              type="date"
+              value={newProduct.expiryDate}
+              onChange={handleAddProductChange}
+            />
+            <Input
+              name="supplier"
+              placeholder="Supplier"
+              value={newProduct.supplier}
+              onChange={handleAddProductChange}
+            />
+            <Input
+              name="barcode"
+              placeholder="Barcode"
+              value={newProduct.barcode}
+              onChange={handleAddProductChange}
+            />
+            <Input
+              name="imageUrl"
+              placeholder="Image URL"
+              value={newProduct.imageUrl}
+              onChange={handleAddProductChange}
+            />
+
+            <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                onClick={() => setShowAddModal(false)}
+                variant="secondary"
+              >
+                Cancel
+              </Button>
+              <Button type="submit">Add Product</Button>
+            </div>
+          </form>
+        </Modal>
+      )}
     </div>
   );
 }
