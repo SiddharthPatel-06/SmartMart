@@ -15,7 +15,7 @@ const {
   getExpiringSoon,
   getAutoReorderCandidates,
   searchProducts,
-  getStockByCategory,
+  getCategories,
 } = require("../controllers/productAdvanceController");
 
 const { auth } = require("../middlewares/authMiddleware");
@@ -26,8 +26,8 @@ const { auth } = require("../middlewares/authMiddleware");
 router.get("/low-stock", getLowStockProducts);
 router.get("/expiring-soon", getExpiringSoon);
 router.get("/auto-reorder", getAutoReorderCandidates);
-router.get("/search", searchProducts);
-router.get("/stock-summary", getStockByCategory);
+router.get("/search",searchProducts);
+router.get("/categories", getCategories);
 
 // CRUD Routes
 router.post("/", createProduct);
