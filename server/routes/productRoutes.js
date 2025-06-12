@@ -6,17 +6,17 @@ const {
   getProductById,
   updateProduct,
   deleteProduct,
-  bulkUploadProducts
+  bulkUploadProducts,
+  getProductByBarcode,
 } = require("../controllers/productController");
 
-const{
+const {
   getLowStockProducts,
   getExpiringSoon,
   getAutoReorderCandidates,
   searchProducts,
   getStockByCategory,
 } = require("../controllers/productAdvanceController");
-
 
 const { auth } = require("../middlewares/authMiddleware");
 
@@ -26,15 +26,16 @@ const { auth } = require("../middlewares/authMiddleware");
 router.get("/low-stock", getLowStockProducts);
 router.get("/expiring-soon", getExpiringSoon);
 router.get("/auto-reorder", getAutoReorderCandidates);
-router.get("/search",searchProducts);
+router.get("/search", searchProducts);
 router.get("/stock-summary", getStockByCategory);
 
 // CRUD Routes
 router.post("/", createProduct);
-router.post("/bulk-upload",bulkUploadProducts);
-router.get("/", getAllProducts);         
-router.get("/:id", getProductById);      
-router.put("/:id", updateProduct);      
-router.delete("/:id", deleteProduct); 
+router.post("/bulk-upload", bulkUploadProducts);
+router.get("/", getAllProducts);
+router.get("/barcode/:barcode", getProductByBarcode);
+router.get("/:id", getProductById);
+router.put("/:id", updateProduct);
+router.delete("/:id", deleteProduct);
 
 module.exports = router;

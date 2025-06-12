@@ -21,12 +21,13 @@ exports.bulkUploadProducts = async (req, res) => {
     }
 
     const inserted = await Product.insertMany(products, { ordered: false });
-    res.status(201).json({ message: `${inserted.length} products added`, data: inserted });
+    res
+      .status(201)
+      .json({ message: `${inserted.length} products added`, data: inserted });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
-
 
 // Get all products
 exports.getAllProducts = async (req, res) => {
@@ -49,6 +50,23 @@ exports.getProductById = async (req, res) => {
   }
 };
 
+// Get product by barcode
+exports.getProductByBarcode = async (req, res) => {
+  try {
+    const { barcode } = req.params;
+    const product = await Product.findOne({ barcode: barcode.trim() });
+
+    if (!product) {
+      return res
+        .status(404)
+        .json({ message: "Product not found with this barcode" });
+    }
+
+    res.status(200).json(product);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
 // Update a product
 exports.updateProduct = async (req, res) => {
@@ -65,7 +83,6 @@ exports.updateProduct = async (req, res) => {
   }
 };
 
-
 // Delete a product
 exports.deleteProduct = async (req, res) => {
   try {
@@ -76,4 +93,3 @@ exports.deleteProduct = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
