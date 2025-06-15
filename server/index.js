@@ -18,6 +18,7 @@ const productRoutes = require("./routes/productRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const invoiceRoutes = require("./routes/invoiceRoutes");
 const martRoute = require("./routes/martRoute");
+const orderRoutes = require("./routes/orderRoutes");
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/profile", profileRoutes);
@@ -25,6 +26,7 @@ app.use("/api/v1/products", productRoutes);
 app.use("/api/v1/cart", cartRoutes);
 app.use("/api/v1/invoice", invoiceRoutes);
 app.use("/api/v1/marts", martRoute);
+app.use("/api/v1/order", orderRoutes);
 
 app.get("/", (req, res) => {
   res.send("Welcome to SmartMart API");
