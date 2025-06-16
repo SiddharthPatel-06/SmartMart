@@ -19,6 +19,7 @@ const {
 } = require("../controllers/productAdvanceController");
 
 const { auth } = require("../middlewares/authMiddleware");
+const upload = require("../middlewares/upload");
 
 // router.use(auth);
 
@@ -31,7 +32,7 @@ router.get("/categories", getCategories);
 
 // CRUD Routes
 router.post("/", createProduct);
-router.post("/bulk-upload", bulkUploadProducts);
+router.post("/bulk-upload", upload.single("file"),bulkUploadProducts);
 router.get("/", getAllProducts);
 router.get("/barcode/:barcode", getProductByBarcode);
 router.get("/:id", getProductById);

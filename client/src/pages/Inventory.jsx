@@ -8,7 +8,6 @@ import Modal from "../components/ui/Modal";
 import { FiPackage } from "react-icons/fi";
 import { AiOutlineStock } from "react-icons/ai";
 import { FcExpired } from "react-icons/fc";
-import { TbCategory } from "react-icons/tb";
 
 const API_BASE_URL = "http://localhost:4000";
 
@@ -19,6 +18,8 @@ export default function InventoryPage() {
   const [expiryFilter, setExpiryFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [categories, setCategories] = useState([]);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [csvFile, setCsvFile] = useState(null);
 
   const [summary, setSummary] = useState({
     total: 0,
@@ -31,7 +32,7 @@ export default function InventoryPage() {
 
   const [newProduct, setNewProduct] = useState({
     name: "",
-    id: "",
+    sku: "",
     description: "",
     category: "",
     price: "",
@@ -45,7 +46,7 @@ export default function InventoryPage() {
 
   const fetchProducts = async () => {
     try {
-      const { data } = await axios.get(`${API_BASE_URL}/api/products`);
+      const { data } = await axios.get(`${API_BASE_URL}/api/v1/products`);
       setProducts(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Failed to fetch products:", err);
@@ -56,10 +57,10 @@ export default function InventoryPage() {
   const fetchSummary = async () => {
     try {
       const [allRes, lowRes, outRes, expiringRes] = await Promise.all([
-        axios.get(`${API_BASE_URL}/api/products`),
-        axios.get(`${API_BASE_URL}/api/products/low-stock`),
-        axios.get(`${API_BASE_URL}/api/products?stock=0`),
-        axios.get(`${API_BASE_URL}/api/products/expiring-soon`),
+        axios.get(`${API_BASE_URL}/api/v1/products`),
+        axios.get(`${API_BASE_URL}/api/v1/products/low-stock`),
+        axios.get(`${API_BASE_URL}/api/v1/products?stock=0`),
+        axios.get(`${API_BASE_URL}/api/v1/products/expiring-soon`),
       ]);
       const all = Array.isArray(allRes.data) ? allRes.data : [];
       setSummary({
@@ -79,7 +80,7 @@ export default function InventoryPage() {
   const fetchCategories = async () => {
     try {
       const { data } = await axios.get(
-        `${API_BASE_URL}/api/products/categories`
+        `${API_BASE_URL}/api/v1/products/categories`
       );
       setCategories(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -130,7 +131,7 @@ export default function InventoryPage() {
   const handleAddProductSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${API_BASE_URL}/api/products`, {
+      await axios.post(`${API_BASE_URL}/api/v1/products`, {
         ...newProduct,
         price: parseFloat(newProduct.price),
         quantity: parseInt(newProduct.quantity),
@@ -142,7 +143,7 @@ export default function InventoryPage() {
       setShowAddModal(false);
       setNewProduct({
         name: "",
-        id: "",
+        sku: "",
         description: "",
         category: "",
         price: "",
@@ -161,15 +162,111 @@ export default function InventoryPage() {
     }
   };
 
+  const handleCsvUpload = async () => {
+    if (!csvFile) return;
+
+    const formData = new FormData();
+    formData.append("file", csvFile);
+
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/api/v1/products/bulk-upload`,
+        formData
+      );
+
+      fetchProducts();
+      fetchSummary();
+
+      alert(`${response.data.message} successfully uploaded!`);
+      setShowImportModal(false);
+      setCsvFile(null);
+    } catch (error) {
+      console.error("CSV Upload Failed:", error);
+      alert("CSV Upload Failed");
+    }
+  };
+
+  const handleExport = () => {
+    if (!products.length) return alert("No products to export.");
+
+    const excludedFields = ["_id", "__v"];
+    const headers = Object.keys(products[0]).filter(
+      (key) => !excludedFields.includes(key)
+    );
+
+    const csvRows = [
+      headers.join(","),
+      ...products.map((product) =>
+        headers.map((key) => JSON.stringify(product[key] ?? "")).join(",")
+      ),
+    ];
+
+    const blob = new Blob([csvRows.join("\n")], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "inventory_export.csv";
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="p-4">
-      <h2 className="text-3xl font-bold text-white mb-2 flex items-center gap-2">
-        <FiPackage />
-        Inventory
-      </h2>
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-3xl font-bold text-white flex items-center gap-2">
+          <FiPackage />
+          Inventory
+        </h2>
+
+        <div className="flex gap-2">
+          <Button
+            variant="ghost"
+            className="border border-white/20 bg-white/5 text-white flex items-center gap-2 hover:bg-transparent hover:text-white hover:shadow-none"
+            onClick={() => setShowImportModal(true)}
+          >
+            <FiPackage />
+            Import
+          </Button>
+
+          <Button
+            variant="ghost"
+            className="border border-white/20 bg-white/5 text-white flex items-center gap-2 hover:bg-transparent hover:text-white hover:shadow-none"
+            onClick={handleExport}
+          >
+            📤 Export
+          </Button>
+        </div>
+      </div>
+
       <p className="text-muted-foreground mb-6">
         Manage and track your product inventory
       </p>
+
+      {/* CSV Import Modal */}
+      {showImportModal && (
+        <Modal
+          isOpen={showImportModal}
+          onClose={() => setShowImportModal(false)}
+          title="Import CSV Inventory"
+        >
+          <div className="p-4">
+            <Input
+              type="file"
+              accept=".csv"
+              onChange={(e) => setCsvFile(e.target.files[0])}
+            />
+            <div className="flex justify-end gap-2 mt-4">
+              <Button
+                variant="secondary"
+                onClick={() => setShowImportModal(false)}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleCsvUpload}>Upload</Button>
+            </div>
+          </div>
+        </Modal>
+      )}
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -269,7 +366,14 @@ export default function InventoryPage() {
         </div>
 
         <div className="shrink-0">
-          <Button onClick={() => setShowAddModal(true)}>+ Add Product</Button>
+          <Button
+            onClick={() => {
+              // console.log("Add Product button clicked");
+              setShowAddModal(true);
+            }}
+          >
+            + Add Product
+          </Button>
         </div>
       </div>
 
@@ -298,7 +402,7 @@ export default function InventoryPage() {
                   />
                 </td>
                 <td className="p-2 font-medium">{item.name}</td>
-                <td className="p-2">{item.id}</td>
+                <td className="p-2">{item.sku}</td>
                 <td className="p-2">{item.category}</td>
                 <td className="p-2">${item.price.toFixed(2)}</td>
                 <td className="p-2">
@@ -325,7 +429,12 @@ export default function InventoryPage() {
 
       {/* Add Product Modal */}
       {showAddModal && (
-        <Modal onClose={() => setShowAddModal(false)} title="Add New Product">
+        <Modal
+          isOpen={showAddModal}
+          onClose={() => setShowAddModal(false)}
+          title="Add New Product"
+          contentClassName="max-w-3xl max-h-[85vh] p-8 overflow-y-auto"
+        >
           <form onSubmit={handleAddProductSubmit} className="space-y-4">
             <Input
               name="name"
@@ -335,9 +444,9 @@ export default function InventoryPage() {
               required
             />
             <Input
-              name="id"
+              name="sku"
               placeholder="SKU / Product ID"
-              value={newProduct.id}
+              value={newProduct.sku}
               onChange={handleAddProductChange}
               required
             />

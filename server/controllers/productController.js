@@ -1,4 +1,82 @@
 const Product = require("../models/Product");
+const csv = require("csv-parser");
+const { Readable } = require("stream");
+exports.bulkUploadProducts = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "CSV file is required." });
+    }
+
+    const products = [];
+
+    const readableFile = new Readable();
+    readableFile._read = () => {};
+    readableFile.push(req.file.buffer);
+    readableFile.push(null);
+
+    readableFile
+      .pipe(csv())
+      .on("data", (row) => {
+        console.log("Parsed row:", row);
+
+        try {
+          const product = {
+            name: row.name?.trim(),
+            sku: row.sku?.trim(), // ✅ updated to use sku instead of id
+            description: row.description?.trim() || "",
+            category: row.category?.trim(),
+            price: parseFloat(row.price),
+            quantity: parseInt(row.quantity),
+            reorderLevel: parseInt(row.reorderLevel || 5),
+            expiryDate: row.expiryDate ? new Date(row.expiryDate) : null,
+            supplier: row.supplier?.trim() || "",
+            barcode: row.barcode?.trim() || "",
+            imageUrl: row.imageUrl?.trim() || "",
+          };
+
+          // Basic required field validation
+          if (
+            !product.name ||
+            !product.sku ||
+            isNaN(product.price) ||
+            isNaN(product.quantity) ||
+            !product.category
+          ) {
+            console.warn("Skipping invalid row:", row);
+            return;
+          }
+
+          products.push(product);
+        } catch (err) {
+          console.error("Row parsing error:", err.message);
+        }
+      })
+      .on("end", async () => {
+        if (!products.length) {
+          return res.status(400).json({ error: "No valid rows found in CSV." });
+        }
+
+        try {
+          const inserted = await Product.insertMany(products, { ordered: false });
+          res.status(201).json({
+            message: `${inserted.length} products added successfully.`,
+            data: inserted,
+          });
+        } catch (err) {
+          console.error("Database insert error:", err.message);
+          res.status(500).json({ error: "Error inserting products: " + err.message });
+        }
+      })
+      .on("error", (err) => {
+        console.error("CSV parsing failed:", err.message);
+        res.status(500).json({ error: "Failed to parse CSV file." });
+      });
+  } catch (err) {
+    console.error("Unexpected error:", err.message);
+    res.status(500).json({ error: "Internal server error: " + err.message });
+  }
+};
+
 
 // Create a new product
 exports.createProduct = async (req, res) => {
@@ -11,35 +89,6 @@ exports.createProduct = async (req, res) => {
   }
 };
 
-//bulk-upload
-exports.bulkUploadProducts = async (req, res) => {
-  try {
-    const products = Array.isArray(req.body) ? req.body : req.body.products;
-
-    if (!Array.isArray(products) || products.length === 0) {
-      return res.status(400).json({ error: "No products to upload" });
-    }
-
-    const inserted = await Product.insertMany(products, { ordered: false });
-    res
-      .status(201)
-      .json({ message: `${inserted.length} products added`, data: inserted });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-
-
-// Get all products
-// exports.getAllProducts = async (req, res) => {
-//   try {
-//     const products = await Product.find().sort({ createdAt: -1 });
-//     res.status(200).json(products);
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// };
 exports.getAllProducts = async (req, res) => {
   try {
     const filter = {};

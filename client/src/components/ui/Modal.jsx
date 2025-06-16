@@ -1,48 +1,27 @@
 import React from "react";
-import { FiX } from "react-icons/fi";
+import { createPortal } from "react-dom";
 
-const Modal = ({
-  isOpen,
-  onClose,
-  title,
-  children,
-  maxWidth = "max-w-md",
-  closeOnOverlayClick = true,
-  showCloseButton = true,
-}) => {
+const Modal = ({ isOpen, onClose, title, children, className = "", contentClassName = "" }) => {
   if (!isOpen) return null;
 
-  const handleOverlayClick = (e) => {
-    if (e.target === e.currentTarget && closeOnOverlayClick) {
-      onClose();
-    }
-  };
-
-  return (
-    <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 max-h-screen overflow-y-auto"
-      onClick={handleOverlayClick}
-    >
+  return createPortal(
+    <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 ${className}`}>
       <div
-        className={`bg-neutral-900 rounded-lg w-full ${maxWidth} border border-neutral-800 `}
+        className={`bg-white dark:bg-neutral-900 rounded-xl shadow-lg w-full max-w-md mx-4 p-6 relative ${contentClassName}`}
       >
         {title && (
-          <div className="flex justify-between items-center p-4 border-b border-neutral-800 sticky top-0 bg-neutral-900 z-10">
-            <h2 className="text-xl font-bold">{title}</h2>
-            {showCloseButton && (
-              <button
-                onClick={onClose}
-                className="text-neutral-400 hover:text-white p-1 rounded-full hover:bg-neutral-800 transition"
-              >
-                <FiX size={20} />
-              </button>
-            )}
-          </div>
+          <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">{title}</h2>
         )}
-
-        <div className="p-6">{children}</div>
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 dark:hover:text-white"
+        >
+          &times;
+        </button>
+        {children}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
