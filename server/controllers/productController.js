@@ -22,7 +22,7 @@ exports.bulkUploadProducts = async (req, res) => {
         try {
           const product = {
             name: row.name?.trim(),
-            sku: row.sku?.trim(), // ✅ updated to use sku instead of id
+            sku: row.sku?.trim(),
             description: row.description?.trim() || "",
             category: row.category?.trim(),
             price: parseFloat(row.price),
