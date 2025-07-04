@@ -26,7 +26,6 @@ const upload = require("../middlewares/upload");
 //Inventory Management
 router.get("/low-stock", getLowStockProducts);
 router.get("/expiring-soon", getExpiringSoon);
-router.get("/auto-reorder", getAutoReorderCandidates);
 router.get("/search",searchProducts);
 router.get("/categories", getCategories);
 

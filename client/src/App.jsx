@@ -7,6 +7,7 @@ import NewDashboard from "./pages/NewDashboard";
 import InventoryPage from "./pages/Inventory";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
+import AdminReorderRequests from "./pages/Reorder";
 
 const App = () => (
   <Router>
@@ -29,6 +30,16 @@ const App = () => (
           <ProtectedRoute>
             <Layout>
               <InventoryPage />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/delivery"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <AdminReorderRequests />
             </Layout>
           </ProtectedRoute>
         }
