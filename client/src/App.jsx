@@ -7,10 +7,13 @@ import NewDashboard from "./pages/NewDashboard";
 import InventoryPage from "./pages/Inventory";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
-import AdminReorderRequests from "./pages/Reorder";
+import Billing from "./pages/Billing";
+import NotFound from "./pages/NotFound";
+import { Toaster } from "react-hot-toast";
 
 const App = () => (
   <Router>
+    <Toaster position="top-right" />
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<AuthForm isSignup={false} />} />
@@ -35,15 +38,16 @@ const App = () => (
         }
       />
       <Route
-        path="/delivery"
+        path="/billing"
         element={
           <ProtectedRoute>
             <Layout>
-              <AdminReorderRequests />
+              <Billing />
             </Layout>
           </ProtectedRoute>
         }
       />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   </Router>
 );

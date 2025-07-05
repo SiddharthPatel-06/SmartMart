@@ -52,3 +52,19 @@ exports.getMartById = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+exports.getMartByOwner = async (req, res) => {
+  try {
+    const ownerId = req.params.id;
+    const mart = await Mart.findOne({ owner: ownerId });
+
+    if (!mart) {
+      return res.status(404).json({ message: "Mart not found for this owner" });
+    }
+
+    res.json({ mart });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

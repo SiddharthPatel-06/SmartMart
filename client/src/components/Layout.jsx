@@ -16,13 +16,22 @@ import {
   FiSave,
 } from "react-icons/fi";
 import Modal from "../components/ui/Modal";
+import toast from "react-hot-toast";
 
 const menuItems = [
   { name: "dashboard", icon: <FiHome size={20} />, path: "/dashboard" },
   { name: "inventory", icon: <FiPackage size={20} />, path: "/inventory" },
   { name: "billing", icon: <FiDollarSign size={20} />, path: "/billing" },
-  { name: "ordering & delivery", icon: <FiTruck size={20} />, path: "/delivery" },
-  { name: "customer suppliers", icon: <FiUsers size={20} />, path: "/suppliers" },
+  {
+    name: "ordering & delivery",
+    icon: <FiTruck size={20} />,
+    path: "/delivery",
+  },
+  {
+    name: "customer suppliers",
+    icon: <FiUsers size={20} />,
+    path: "/suppliers",
+  },
   { name: "reports", icon: <FiPieChart size={20} />, path: "/reports" },
   { name: "user management", icon: <FiUser size={20} />, path: "/users" },
 ];
@@ -51,66 +60,92 @@ const Layout = ({ children }) => {
   };
 
   const handleFileChange = (e) => {
-      setSelectedFile(e.target.files[0]);
-    };
-  
-    const handleUpdateProfile = async () => {
-      setIsLoading(true);
-      try {
-        const userId = user?.id || localStorage.getItem("userId");
-        if (!userId) {
-          throw new Error("User ID not found in state or localStorage");
-        }
-  
-        const formDataToSend = new FormData();
-        formDataToSend.append("firstName", formData.firstName);
-        formDataToSend.append("lastName", formData.lastName);
-        formDataToSend.append("contactNumber", formData.contactNumber);
-        formDataToSend.append("gender", formData.gender);
-        if (selectedFile) {
-          formDataToSend.append("profileImage", selectedFile);
-        }
-  
-        await dispatch(
-          updateProfile({ userId: userId, formData: formDataToSend })
-        ).unwrap();
-  
-        setIsEditing(false);
-        setSelectedFile(null);
-      } catch (error) {
-        console.error("Update failed:", {
-          message: error.message,
-          stack: error.stack,
-          response: error.response?.data,
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-  
-    const handleEditToggle = () => {
-      if (isEditing) {
-        setFormData({
-          firstName: profile.firstName || "",
-          lastName: profile.lastName || "",
-          contactNumber: profile.contactNumber || "",
-          gender: profile.gender || "other",
-        });
-        setSelectedFile(null);
-      }
-      setIsEditing(!isEditing);
-    };
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate("/login");
+    setSelectedFile(e.target.files[0]);
   };
 
+  const handleUpdateProfile = async () => {
+    setIsLoading(true);
+    try {
+      const userId = user?.id || localStorage.getItem("userId");
+      if (!userId) {
+        throw new Error("User ID not found in state or localStorage");
+      }
+
+      const formDataToSend = new FormData();
+      formDataToSend.append("firstName", formData.firstName);
+      formDataToSend.append("lastName", formData.lastName);
+      formDataToSend.append("contactNumber", formData.contactNumber);
+      formDataToSend.append("gender", formData.gender);
+      if (selectedFile) {
+        formDataToSend.append("profileImage", selectedFile);
+      }
+
+      await dispatch(
+        updateProfile({ userId: userId, formData: formDataToSend })
+      ).unwrap();
+
+      setIsEditing(false);
+      setSelectedFile(null);
+    } catch (error) {
+      console.error("Update failed:", {
+        message: error.message,
+        stack: error.stack,
+        response: error.response?.data,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEditToggle = () => {
+    if (isEditing) {
+      setFormData({
+        firstName: profile.firstName || "",
+        lastName: profile.lastName || "",
+        contactNumber: profile.contactNumber || "",
+        gender: profile.gender || "other",
+      });
+      setSelectedFile(null);
+    }
+    setIsEditing(!isEditing);
+  };
+  const handleLogout = () => {
+    dispatch(logout());
+    toast.success("Logged out Successfully!");
+    navigate("/login");
+  };
 
   return (
     <div className="min-h-screen bg-neutral-950 text-white flex">
       {/* Sidebar */}
       <div className="w-64 bg-neutral-950 p-4 flex flex-col border-r border-neutral-800">
-        <div className="text-2xl font-bold mb-8 p-4 border-b border-neutral-800">SmartMart</div>
+        <div className="flex items-center gap-2 text-2xl font-bold mb-8 p-4 border-b border-neutral-800">
+          {/* Logo */}
+          <div className="size-6 text-white">
+            <svg
+              viewBox="0 0 48 48"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <g clipPath="url(#clip0_6_535)">
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z"
+                  fill="currentColor"
+                />
+              </g>
+              <defs>
+                <clipPath id="clip0_6_535">
+                  <rect width="48" height="48" fill="white" />
+                </clipPath>
+              </defs>
+            </svg>
+          </div>
+
+          <div>SmartMart</div>
+        </div>
+
         <nav className="flex-1">
           <ul className="space-y-2">
             {menuItems.map((item) => (
@@ -133,6 +168,14 @@ const Layout = ({ children }) => {
             ))}
           </ul>
         </nav>
+        <div className="mt-auto p-4 border-t border-neutral-800">
+          <button
+            onClick={handleLogout}
+            className="w-full py-2 px-4 bg-red-600 rounded-lg hover:bg-red-700 transition"
+          >
+            Logout
+          </button>
+        </div>
       </div>
 
       {/* Right Section */}
@@ -154,7 +197,10 @@ const Layout = ({ children }) => {
               <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
             </button>
 
-            <button onClick={() => setIsProfileModalOpen(true)} className="hover:bg-neutral-800 p-1 rounded-full transition">
+            <button
+              onClick={() => setIsProfileModalOpen(true)}
+              className="hover:bg-neutral-800 p-1 rounded-full transition"
+            >
               <img
                 src={profile.profileImage || "https://via.placeholder.com/40"}
                 alt="Profile"
@@ -218,8 +264,7 @@ const Layout = ({ children }) => {
                   className="bg-neutral-800 p-1 rounded w-24 text-white focus:outline-none focus:ring-1 focus:ring-neutral-600"
                 />
               </div>
-            ) : 
-            (
+            ) : (
               `${profile.firstName || "N/A"} ${profile.lastName || "N/A"}`
             )}
           </h3>
