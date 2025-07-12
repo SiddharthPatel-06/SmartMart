@@ -1,4 +1,6 @@
 import React from "react";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import AuthForm from "./components/ui/AuthForm";
 import ProtectedRoute from "./components/ui/ProtectedRoute";
@@ -12,66 +14,79 @@ import NotFound from "./pages/NotFound";
 import { Toaster } from "react-hot-toast";
 import CreateOrder from "./pages/CreateOrder";
 import DeliveryMap from "./pages/DeliveryMap";
+import { restoreAuth } from "./app/slices/authSlice";
 
-const App = () => (
-  <Router>
-    <Toaster position="top-right" />
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/login" element={<AuthForm isSignup={false} />} />
-      <Route path="/signup" element={<AuthForm isSignup={true} />} />
+const App = () => {
+  const dispatch = useDispatch();
 
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <NewDashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/inventory"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <InventoryPage />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/billing"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <Billing />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/create-order"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <CreateOrder />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/delivery-map"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <DeliveryMap />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
-  </Router>
-);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const user = localStorage.getItem("user");
+    if (token && user) {
+      dispatch(restoreAuth({ token, user: JSON.parse(user) }));
+    }
+  }, []);
+
+  return (
+    <Router>
+      <Toaster position="top-right" />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<AuthForm isSignup={false} />} />
+        <Route path="/signup" element={<AuthForm isSignup={true} />} />
+
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <NewDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/inventory"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <InventoryPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/billing"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Billing />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/create-order"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <CreateOrder />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/delivery-map"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <DeliveryMap />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Router>
+  );
+};
 
 export default App;

@@ -75,6 +75,7 @@ export default function AuthForm({ isSignup }) {
         if (result?.token) {
           toast.success("Signup Successfully!");
           localStorage.setItem("token", result.token);
+          localStorage.setItem("user", JSON.stringify(result.user));
           navigate("/dashboard");
         }
       } else {
@@ -89,6 +90,7 @@ export default function AuthForm({ isSignup }) {
         if (result?.token) {
           toast.success("Login Successfully!");
           localStorage.setItem("token", result.token);
+          localStorage.setItem("user", JSON.stringify(result.user));
           navigate("/dashboard");
         }
       }
@@ -106,7 +108,7 @@ export default function AuthForm({ isSignup }) {
 
     try {
       await dispatch(sendOtp({ email: formData.email })).unwrap();
-       toast.success("OTP resent to your email");
+      toast.success("OTP resent to your email");
     } catch (err) {
       toast.error(err.message || "Failed to resend OTP.");
       setError(err.message || "Failed to resend OTP. Please try again.");
@@ -125,6 +127,7 @@ export default function AuthForm({ isSignup }) {
       if (result?.token) {
         toast.success("Login Successfully!");
         localStorage.setItem("token", result.token);
+        localStorage.setItem("user", JSON.stringify(result.user));
         navigate("/dashboard");
       }
     } catch (err) {
