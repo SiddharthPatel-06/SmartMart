@@ -33,6 +33,7 @@ const orderSchema = new mongoose.Schema(
     items: [orderItemSchema],
     totalAmount: Number,
     customerAddress: addressSchema,
+    phone: { type: String, required: true },
     status: {
       type: String,
       enum: ["pending", "dispatched", "delivered", "cancelled"],

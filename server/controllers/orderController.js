@@ -1,5 +1,6 @@
 const Order = require("../models/Order");
 const Mart = require("../models/Mart");
+const { geocodeAddress } = require("../utils/geocode");
 
 // Utility: Format distance in meters/kilometers
 function formatDistance(meters) {
@@ -32,30 +33,49 @@ function getDistanceInMeters([lng1, lat1], [lng2, lat2]) {
 
 // 1. Create a new order
 exports.createOrder = async (req, res) => {
-  const { martId, items, customerAddress } = req.body;
-
-  if (
-    !martId ||
-    !items?.length ||
-    !isValidCoordinates(customerAddress?.location?.coordinates)
-  ) {
-    return res.status(400).json({ message: "Missing or invalid order data" });
+  const { martId, items, customerAddressText, phone } = req.body;
+  if (!martId || !items?.length || !customerAddressText || !phone) {
+    return res.status(400).json({ message: "Required fields missing" });
   }
 
   try {
+    const { coordinates, components, formatted } = await geocodeAddress(
+      customerAddressText
+    );
+
+    const matchPostcode = formatted?.match(/\b\d{6}\b/);
+    const fallbackPostcode = matchPostcode ? matchPostcode[0] : "";
+
     const totalAmount = items.reduce(
       (sum, i) => sum + i.quantity * (i.price || 0),
       0
     );
+
     const order = await Order.create({
       mart: martId,
       items,
       totalAmount,
-      customerAddress,
+      customerAddress: {
+        street: customerAddressText,
+        city:
+          components.city ||
+          components.town ||
+          components.village ||
+          components.suburb ||
+          "",
+        pincode:
+          components.postcode || components.pincode || fallbackPostcode || "",
+        state: components.state || "",
+        country: components.country || "",
+        location: { type: "Point", coordinates },
+      },
+      phone,
       history: [{ status: "pending", changedAt: new Date() }],
     });
+
     res.status(201).json(order);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: err.message });
   }
 };

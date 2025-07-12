@@ -6,3 +6,6 @@ export const addToCartService = async (data) =>
 
 export const generateInvoiceService = async (data) =>
   await axios.post(`${API}/invoice/generate`, data);
+
+export const getLatestInvoiceService = async (userId) =>
+  await axios.get(`${API}/invoice/latest/${userId}`);

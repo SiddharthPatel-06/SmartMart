@@ -26,9 +26,14 @@ exports.generateInvoice = async (req, res) => {
 
     const { items, totalAmount } = cart.items.reduce(
       (acc, item) => {
+        if (!item.productId || !item.productId._id) {
+          throw new Error("Missing product data in cart item");
+        }
+
         const total = item.quantity * item.productId.price;
         acc.totalAmount += total;
         acc.items.push({
+          productId: item.productId._id,
           productName: item.productId.name,
           price: item.productId.price,
           quantity: item.quantity,
@@ -75,5 +80,19 @@ exports.generateInvoice = async (req, res) => {
     res.status(201).json({ message: "Invoice generated", invoice });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+};
+
+exports.getLatestInvoice = async (req, res) => {
+  try {
+    const invoice = await Invoice.findOne({ userId: req.params.userId })
+      .sort({ createdAt: -1 })
+      .populate("items.productId", "name")
+      .limit(1);
+    if (!invoice) return res.status(404).json({ message: "No invoice found" });
+
+    res.json({ invoice });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };

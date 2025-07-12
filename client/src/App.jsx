@@ -10,6 +10,8 @@ import Home from "./pages/Home";
 import Billing from "./pages/Billing";
 import NotFound from "./pages/NotFound";
 import { Toaster } from "react-hot-toast";
+import CreateOrder from "./pages/CreateOrder";
+import DeliveryMap from "./pages/DeliveryMap";
 
 const App = () => (
   <Router>
@@ -43,6 +45,26 @@ const App = () => (
           <ProtectedRoute>
             <Layout>
               <Billing />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/create-order"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <CreateOrder />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/delivery-map"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <DeliveryMap />
             </Layout>
           </ProtectedRoute>
         }

@@ -1,6 +1,10 @@
 const mongoose = require("mongoose");
 
 const invoiceItemSchema = new mongoose.Schema({
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Product",
+  },
   productName: String,
   price: Number,
   quantity: Number,

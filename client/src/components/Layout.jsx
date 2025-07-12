@@ -14,6 +14,7 @@ import {
   FiUser,
   FiEdit,
   FiSave,
+  FiMapPin,
 } from "react-icons/fi";
 import Modal from "../components/ui/Modal";
 import toast from "react-hot-toast";
@@ -23,9 +24,14 @@ const menuItems = [
   { name: "inventory", icon: <FiPackage size={20} />, path: "/inventory" },
   { name: "billing", icon: <FiDollarSign size={20} />, path: "/billing" },
   {
-    name: "ordering & delivery",
+    name: "Create Order",
     icon: <FiTruck size={20} />,
-    path: "/delivery",
+    path: "/create-order",
+  },
+  {
+    name: "delivery map",
+    icon: <FiMapPin size={20} />,
+    path: "/delivery-map",
   },
   {
     name: "customer suppliers",
@@ -233,7 +239,7 @@ const Layout = ({ children }) => {
                 : profile.profileImage || "https://via.placeholder.com/150"
             }
             alt="Profile"
-            className="w-24 h-24 rounded-full object-cover mb-4 border-2 border-neutral-700"
+            className="w-24 h-24 rounded-full object-cover mb-4"
           />
           {isEditing && (
             <label className="cursor-pointer text-sm text-blue-400 hover:text-blue-300 mb-4">
@@ -254,7 +260,7 @@ const Layout = ({ children }) => {
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleInputChange}
-                  className="bg-neutral-800 p-1 rounded w-24 text-white focus:outline-none focus:ring-1 focus:ring-neutral-600"
+                  className="bg-neutral-800  p-1 rounded w-24 text-white focus:outline-none focus:ring-1 focus:ring-neutral-600"
                 />
                 <input
                   type="text"
@@ -282,10 +288,10 @@ const Layout = ({ children }) => {
                 name="firstName"
                 value={formData.firstName}
                 onChange={handleInputChange}
-                className="w-full bg-neutral-800 p-3 rounded-lg text-white focus:outline-none focus:ring-1 focus:ring-neutral-600"
+                className="w-full bg-neutral-800 border border-neutral-700 p-3 rounded-lg text-white focus:outline-none focus:ring-1 focus:ring-neutral-600"
               />
             ) : (
-              <div className="bg-neutral-800 p-3 rounded-lg">
+              <div className="bg-neutral-800 p-3 rounded-lg border border-neutral-700">
                 {profile.firstName || "N/A"}
               </div>
             )}
@@ -301,10 +307,10 @@ const Layout = ({ children }) => {
                 name="lastName"
                 value={formData.lastName}
                 onChange={handleInputChange}
-                className="w-full bg-neutral-800 p-3 rounded-lg text-white focus:outline-none focus:ring-1 focus:ring-neutral-600"
+                className="w-full bg-neutral-800 border border-neutral-700 p-3 rounded-lg text-white focus:outline-none focus:ring-1 focus:ring-neutral-600"
               />
             ) : (
-              <div className="bg-neutral-800 p-3 rounded-lg">
+              <div className="bg-neutral-800 p-3 rounded-lg border border-neutral-700">
                 {profile.lastName || "N/A"}
               </div>
             )}
@@ -320,10 +326,10 @@ const Layout = ({ children }) => {
                 name="contactNumber"
                 value={formData.contactNumber}
                 onChange={handleInputChange}
-                className="w-full bg-neutral-800 p-3 rounded-lg text-white focus:outline-none focus:ring-1 focus:ring-neutral-600"
+                className="w-full bg-neutral-800 border border-neutral-700 p-3 rounded-lg text-white focus:outline-none focus:ring-1 focus:ring-neutral-600"
               />
             ) : (
-              <div className="bg-neutral-800 p-3 rounded-lg">
+              <div className="bg-neutral-800 border border-neutral-700 p-3 rounded-lg">
                 {profile.contactNumber || "N/A"}
               </div>
             )}
@@ -338,14 +344,14 @@ const Layout = ({ children }) => {
                 name="gender"
                 value={formData.gender}
                 onChange={handleInputChange}
-                className="w-full bg-neutral-800 p-3 rounded-lg text-white focus:outline-none focus:ring-1 focus:ring-neutral-600 capitalize"
+                className="w-full bg-neutral-800 border border-neutral-700 p-3 rounded-lg text-white focus:outline-none focus:ring-1 focus:ring-neutral-600 capitalize"
               >
                 <option value="male">Male</option>
                 <option value="female">Female</option>
                 <option value="other">Other</option>
               </select>
             ) : (
-              <div className="bg-neutral-800 p-3 rounded-lg capitalize">
+              <div className="bg-neutral-800 border border-neutral-700 p-3 rounded-lg capitalize">
                 {profile.gender || "N/A"}
               </div>
             )}
