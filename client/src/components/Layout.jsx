@@ -122,10 +122,10 @@ const Layout = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-white flex">
+    <div className="h-screen overflow-hidden bg-neutral-950 text-white flex">
       {/* Sidebar */}
-      <div className="w-64 bg-neutral-950 p-4 flex flex-col border-r border-neutral-800">
-        <div className="flex items-center gap-2 text-2xl font-bold mb-8 p-4 border-b border-neutral-800">
+      <div className="h-full fixed w-64 bg-neutral-950 p-4 flex flex-col border-r border-neutral-800">
+        <div className="flex items-center gap-2 text-2xl font-bold mb-8 p-[13px] border-b border-neutral-800">
           {/* Logo */}
           <div className="size-6 text-white">
             <svg
@@ -152,7 +152,7 @@ const Layout = ({ children }) => {
           <div>SmartMart</div>
         </div>
 
-        <nav className="flex-1">
+        <nav className="flex-1 overflow-y-auto">
           <ul className="space-y-2">
             {menuItems.map((item) => (
               <li key={item.name}>
@@ -185,9 +185,9 @@ const Layout = ({ children }) => {
       </div>
 
       {/* Right Section */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col h-full ml-64">
         {/* Header */}
-        <header className="bg-neutral-950 p-4 border-b border-neutral-800 flex items-center justify-between">
+        <header className="bg-neutral-950 p-4 border-b border-neutral-800 flex items-center justify-between fixed w-[calc(100%-16rem)] z-10">
           <div className="relative w-1/3">
             <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400" />
             <input
@@ -217,7 +217,9 @@ const Layout = ({ children }) => {
         </header>
 
         {/* Main content */}
-        <main className="flex-1 p-6 overflow-auto">{children}</main>
+        <main className="flex-1 p-6 mt-16 overflow-y-auto will-change-transform">
+          {children}
+        </main>
       </div>
 
       {/* Profile Modal */}
