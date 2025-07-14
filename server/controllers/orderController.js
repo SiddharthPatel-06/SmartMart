@@ -2,36 +2,30 @@ const Order = require("../models/Order");
 const Mart = require("../models/Mart");
 const { geocodeAddress } = require("../utils/geocode");
 
-// Utility: Format distance in meters/kilometers
 function formatDistance(meters) {
   return meters < 1000
-    ? `${Math.round(meters)} m`
-    : `${(meters / 1000).toFixed(2)} km`;
+    ? `${Math.round(meters)} m`
+    : `${(meters / 1000).toFixed(2)} km`;
 }
 
-// Utility: Validate coordinates format
-function isValidCoordinates(coords) {
+function isValidCoordinates(c) {
   return (
-    Array.isArray(coords) &&
-    coords.length === 2 &&
-    coords.every((n) => typeof n === "number")
+    Array.isArray(c) && c.length === 2 && c.every((n) => typeof n === "number")
   );
 }
 
-// Utility: Haversine formula to get real-world distance in meters
+/** haversine – great‑circle distance in meters */
 function getDistanceInMeters([lng1, lat1], [lng2, lat2]) {
-  const R = 6371000; // Radius of Earth in meters
-  const toRad = (deg) => (deg * Math.PI) / 180;
+  const R = 6_371_000;
+  const toRad = (d) => (d * Math.PI) / 180;
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lng2 - lng1);
   const a =
     Math.sin(dLat / 2) ** 2 +
     Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
+  return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-// 1. Create a new order
 exports.createOrder = async (req, res) => {
   const { martId, items, customerAddressText, phone } = req.body;
   if (!martId || !items?.length || !customerAddressText || !phone) {
@@ -39,6 +33,7 @@ exports.createOrder = async (req, res) => {
   }
 
   try {
+    /* geocode address → lat/lng */
     const { coordinates, components, formatted } = await geocodeAddress(
       customerAddressText
     );
@@ -73,14 +68,13 @@ exports.createOrder = async (req, res) => {
       history: [{ status: "pending", changedAt: new Date() }],
     });
 
-    res.status(201).json(order);
+    return res.status(201).json(order);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 };
 
-// 2. Update order status
 exports.updateStatus = async (req, res) => {
   const { orderId, status, deliveryPersonId } = req.body;
 
@@ -93,64 +87,73 @@ exports.updateStatus = async (req, res) => {
     if (deliveryPersonId) order.deliveryPerson = deliveryPersonId;
 
     await order.save();
-    res.json(order);
+    return res.json({ status: order.status });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 };
 
-// 3. Optimized route suggestion
 exports.getOptimizedBatch = async (req, res) => {
   try {
     const { martId } = req.params;
     const mart = await Mart.findById(martId);
+
     if (!mart || !isValidCoordinates(mart.location?.coordinates)) {
       return res
         .status(404)
         .json({ message: "Invalid mart or missing coordinates" });
     }
 
-    const orders = await Order.find({
+    /* get all *pending* orders with geo‑coords */
+    const pending = await Order.find({
       mart: martId,
       status: "pending",
       "customerAddress.location.coordinates": { $exists: true },
     }).lean();
 
     const martLoc = mart.location.coordinates;
-    const distances = orders
-      .map((order) => {
-        const customerLoc = order.customerAddress?.location?.coordinates;
-        if (!isValidCoordinates(customerLoc)) return null;
+    const remaining = [...pending];
+    const sequence = [];
+    let currentLoc = martLoc;
 
-        const meters = getDistanceInMeters(martLoc, customerLoc);
-        return {
-          order,
-          distance: formatDistance(meters),
-          meters,
-        };
-      })
-      .filter(Boolean);
+    /* nearest‑neighbour path (O(n²) but fast for ≤ 50‑100 stops) */
+    while (remaining.length) {
+      let idx = 0;
+      let best = Infinity;
 
-    distances.sort((a, b) => a.meters - b.meters);
-    const optimizedRoute = distances.map((d) => ({
-      order: d.order,
-      distance: d.distance,
-    }));
+      remaining.forEach((ord, i) => {
+        const d = getDistanceInMeters(
+          currentLoc,
+          ord.customerAddress.location.coordinates
+        );
+        if (d < best) {
+          best = d;
+          idx = i;
+        }
+      });
 
-    res.json({
+      const [chosen] = remaining.splice(idx, 1);
+      sequence.push({
+        order: chosen,
+        distance: formatDistance(best),
+      });
+      currentLoc = chosen.customerAddress.location.coordinates;
+    }
+
+    return res.json({
       mart: {
         _id: mart._id,
         name: mart.name,
         location: mart.location,
       },
-      optimizedRoute,
+      optimizedRoute: sequence,
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error(err);
+    return res.status(500).json({ error: err.message });
   }
 };
 
-// 4. Update delivery location
 exports.updateDeliveryLocation = async (req, res) => {
   const { orderId, lng, lat } = req.body;
 
@@ -165,8 +168,8 @@ exports.updateDeliveryLocation = async (req, res) => {
     order.customerAddress.location.coordinates = [lng, lat];
     await order.save();
 
-    res.json(order);
+    return res.json(order);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 };
