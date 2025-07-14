@@ -1,12 +1,18 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getOptimizedBatch } from "../app/slices/deliverySlice";
+import {
+  getOptimizedBatch,
+  updateOrderStatus,
+} from "../app/slices/deliverySlice";
 import { fetchMartByOwner } from "../app/slices/martSlice";
 import MapView from "../components/MapView";
 import Button from "../components/ui/Button";
 import { toast } from "react-hot-toast";
+import { FiRefreshCw } from "react-icons/fi";
 
-const DeliveryMap = () => {
+const STATUS = ["pending", "dispatched", "delivered", "cancelled"];
+
+export default function DeliveryMap() {
   const dispatch = useDispatch();
   const { user } = useSelector((s) => s.auth);
   const { mart, status: martStatus } = useSelector((s) => s.mart);
@@ -14,7 +20,6 @@ const DeliveryMap = () => {
     (s) => s.delivery
   );
 
-  /* load mart once */
   useEffect(() => {
     if (!user?.id) return;
     if (!mart && martStatus === "idle") {
@@ -24,12 +29,17 @@ const DeliveryMap = () => {
     }
   }, [user?.id, mart, martStatus, dispatch]);
 
-  /* load route batch when mart changes */
   useEffect(() => {
     if (mart?._id) dispatch(getOptimizedBatch(mart._id));
   }, [mart?._id, dispatch]);
 
   const refresh = () => mart?._id && dispatch(getOptimizedBatch(mart._id));
+
+  const changeStatus = (id, status) =>
+    dispatch(updateOrderStatus({ orderId: id, status }))
+      .unwrap()
+      .then(() => toast.success("Status updated"))
+      .catch((e) => toast.error(e));
 
   return (
     <div className="p-4 space-y-4">
@@ -41,14 +51,43 @@ const DeliveryMap = () => {
         <p>No pending deliveries.</p>
       )}
 
-      {/* 🗺️ Map */}
       <MapView martCoords={martCoords} markers={markers} />
 
-      <Button className="mt-2" onClick={refresh} disabled={loading}>
-        Refresh
+      {/* order list */}
+      {markers.map((m) => (
+        <div
+          key={m.id}
+          className="flex items-center justify-between bg-neutral-800/50
+                     border border-neutral-700 rounded px-4 py-2 mt-2"
+        >
+          <div>
+            <p className="font-medium">
+              #{m.seq}. {m.phone} — {m.distance}
+            </p>
+            <p className="text-sm text-neutral-400">Status: {m.status}</p>
+          </div>
+
+          <select
+            value={m.status}
+            onChange={(e) => changeStatus(m.id, e.target.value)}
+            className="bg-neutral-700 text-white rounded px-2 py-1 text-sm"
+          >
+            {STATUS.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+        </div>
+      ))}
+
+      <Button
+        onClick={refresh}
+        disabled={loading}
+        className="flex items-center gap-2 mt-2"
+      >
+        <FiRefreshCw className={loading ? "animate-spin" : ""} /> Refresh
       </Button>
     </div>
   );
-};
-
-export default DeliveryMap;
+}

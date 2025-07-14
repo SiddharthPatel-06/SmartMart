@@ -8,6 +8,7 @@ export const getOptimizedBatch = createAsyncThunk(
       const { data } = await axios.get(
         `http://localhost:4000/api/v1/order/batch/${martId}`
       );
+
       return {
         martCoords: data.mart?.location?.coordinates ?? [],
         route: data.optimizedRoute ?? [],
@@ -20,17 +21,34 @@ export const getOptimizedBatch = createAsyncThunk(
   }
 );
 
+export const updateOrderStatus = createAsyncThunk(
+  "delivery/updateOrderStatus",
+  async ({ orderId, status }, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.put(
+        "http://localhost:4000/api/v1/order/status",
+        { orderId, status }
+      );
+      return { orderId, status: data.status };
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || err.message || "Network error"
+      );
+    }
+  }
+);
+
 const deliverySlice = createSlice({
   name: "delivery",
   initialState: {
-    martCoords: [],
-    markers: [],
+    martCoords: [], // [lng, lat]
+    markers: [], // [{ id, coords, phone, distance, status }]
     loading: false,
     error: null,
   },
   reducers: {},
-  extraReducers: (builder) =>
-    builder
+  extraReducers: (b) =>
+    b
       .addCase(getOptimizedBatch.pending, (s) => {
         s.loading = true;
         s.error = null;
@@ -43,14 +61,20 @@ const deliverySlice = createSlice({
         s.loading = false;
         s.martCoords = payload.martCoords;
 
-        /* ⇢ map API objects → leaflet‑friendly marker objects */
-        s.markers = payload.route.map(({ order, distance }) => ({
+        /* convert API → leaflet‑friendly markers */
+        s.markers = payload.route.map(({ order, distance }, idx) => ({
           id: order._id,
+          seq: idx + 1, // ➊ sequence no.
           coords: order.customerAddress.location.coordinates,
           phone: order.phone ?? "—",
           distance,
           status: order.status,
         }));
+      })
+
+      .addCase(updateOrderStatus.fulfilled, (s, { payload }) => {
+        const m = s.markers.find((x) => x.id === payload.orderId);
+        if (m) m.status = payload.status;
       }),
 });
 
