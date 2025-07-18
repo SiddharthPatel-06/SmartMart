@@ -81,13 +81,17 @@ A full-stack retail platform (like D-Mart, K-Mart) built with **MERN stack** + d
 
 ---
 
-## 📸 Screenshots (Optional)
+## 📸 Screenshots
 
-_Add screenshots here showing:_  
-- 📊 Dashboard  
-- 🧾 Billing page  
-- 🗺️ Route optimization map  
-- 💡 GenAI assistant responses  
+### 🧾 Billing Page  
+![Billing](https://github.com/SiddharthPatel-10/SmartMart/blob/main/client/public/screenshots/Billing.png?raw=true)
+
+### 🛒 Create Order  
+![Create Order](https://github.com/SiddharthPatel-10/SmartMart/blob/main/client/public/screenshots/create-order.png?raw=true)
+
+### 🗺️ Route Optimization Map  
+![Route Map](https://github.com/SiddharthPatel-10/SmartMart/blob/main/client/public/screenshots/route-map.png?raw=true)
+
 
 ---
 
