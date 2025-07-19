@@ -25,16 +25,18 @@ A full-stack retail platform (like D-Mart, K-Mart) built with **MERN stack** + d
 
 ## 🛠️ Tech Stack
 
-| Layer      | Tech Used                          |
-|------------|------------------------------------|
-| Frontend   | React.js / React Native            |
-| Backend    | Node.js, Express.js                |
-| Database   | MongoDB                            |
-| Auth       | JWT (Role-based Access)            |
-| Charts     | Chart.js                           |
-| Maps       | Leaflet / Mapbox                   |
-| File Upload| CSV (XLSX parser)                  |
-| GenAI      | OpenAI API + LangChain.js          |
+| Layer           | Tech Used                              |
+|------------------|------------------------------------------|
+| Frontend         | React.js / React Native                  |
+| Backend          | Node.js, Express.js                      |
+| Database         | MongoDB (Atlas)                          |
+| Auth             | JWT (Role-based Access)                  |
+| Charts           | Chart.js                                 |
+| Maps             | Leaflet / Mapbox                         |
+| File Upload      | CSV (XLSX parser)                        |
+| GenAI            | OpenAI API + LangChain.js                |
+| Deployment       | 🐳 Docker + Docker Compose               |
+| Cloud Hosting    | Render / Railway / Fly.io (Docker-based) |
 
 ---
 
@@ -99,7 +101,7 @@ A full-stack retail platform (like D-Mart, K-Mart) built with **MERN stack** + d
 
 ```bash
 # Clone the repo
-git clone https://github.com/yourusername/smartmart.git
+git clone https://github.com/SiddharthPatel-10/SmartMart.git
 cd smartmart
 
 # Install all dependencies (backend + frontend)
