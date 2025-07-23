@@ -20,6 +20,7 @@ const invoiceRoutes = require("./routes/invoiceRoutes");
 const martRoute = require("./routes/martRoute");
 const orderRoutes = require("./routes/orderRoutes");
 const reorderRoutes = require("./routes/reorderRoutes");
+const analyticsRoutes = require("./routes/analyticsRoutes");
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/profile", profileRoutes);
@@ -29,6 +30,7 @@ app.use("/api/v1/invoice", invoiceRoutes);
 app.use("/api/v1/marts", martRoute);
 app.use("/api/v1/order", orderRoutes);
 app.use("/api/reorders", reorderRoutes);
+app.use("/api/v1/analytics", analyticsRoutes);
 
 app.get("/", (req, res) => {
   res.send("Welcome to SmartMart API");
