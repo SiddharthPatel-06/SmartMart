@@ -4,6 +4,7 @@ import martReducer from "./slices/martSlice";
 import billingReducer from "./slices/billingSlice";
 import orderReducer from "./slices/orderSlice";
 import deliveryReducer from "./slices/deliverySlice";
+import analyticsReducer from "./slices/analyticsSlice";
 
 const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ const store = configureStore({
     billing: billingReducer,
     order: orderReducer,
     delivery: deliveryReducer,
+    analytics: analyticsReducer,
   },
 });
 
