@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../app/slices/authSlice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   FiBell,
   FiSearch,
@@ -45,6 +45,7 @@ const menuItems = [
 const Layout = ({ children }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const user = useSelector((state) => state.auth.user);
   const profile = user?.profile || {};
 
@@ -59,6 +60,18 @@ const Layout = ({ children }) => {
   });
   const [selectedFile, setSelectedFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const currentItem = menuItems.find(
+      (item) =>
+        location.pathname === item.path ||
+        location.pathname.startsWith(`${item.path}/`)
+    );
+
+    if (currentItem) {
+      setActiveTab(currentItem.name);
+    }
+  }, [location.pathname]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -157,10 +170,7 @@ const Layout = ({ children }) => {
             {menuItems.map((item) => (
               <li key={item.name}>
                 <button
-                  onClick={() => {
-                    setActiveTab(item.name);
-                    navigate(item.path);
-                  }}
+                  onClick={() => navigate(item.path)}
                   className={`w-full flex items-center space-x-3 p-3 rounded-lg transition ${
                     activeTab === item.name
                       ? "bg-neutral-800 text-white"
