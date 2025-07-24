@@ -29,11 +29,11 @@ const COLORS = [
 ];
 
 const StatCard = ({ title, value, change, icon }) => (
-  <div className="bg-neutral-800 p-4 rounded-xl border border-neutral-700 shadow-lg hover:shadow-xl transition-shadow">
+  <div className="bg-neutral-800 py-2 px-4 rounded-xl border border-neutral-700 shadow-lg hover:shadow-xl transition-shadow">
     <div className="flex justify-between items-start">
       <div>
         <p className="text-neutral-400 text-sm font-medium">{title}</p>
-        <p className="text-2xl font-bold text-white mt-1">{value}</p>
+        <p className="text-xl font-bold text-white mt-1">{value}</p>
         {change && (
           <p
             className={`text-sm mt-1 ${
@@ -51,7 +51,7 @@ const StatCard = ({ title, value, change, icon }) => (
 
 const ProductTable = ({ title, data, colorClass }) => (
   <div className="bg-neutral-800 p-4 rounded-xl border border-neutral-700 shadow-lg">
-    <h3 className="text-lg font-semibold text-white mb-3">{title}</h3>
+    <h3 className="text-xl font-semibold text-neutral-200 mb-3">{title}</h3>
     <div className="space-y-2">
       {data.map((item, index) => (
         <div
@@ -59,7 +59,7 @@ const ProductTable = ({ title, data, colorClass }) => (
           className="flex justify-between items-center py-2 border-b border-neutral-700 last:border-0"
         >
           <div>
-            <p className="font-medium text-white">{item.name}</p>
+            <p className="font-medium text-neutral-300">{item.name}</p>
             <p className="text-xs text-neutral-400">{item.category}</p>
           </div>
           <p className={`font-semibold ${colorClass}`}>{item.totalSold} sold</p>
@@ -74,6 +74,77 @@ const NewDashboard = () => {
   const { sales, top, least, expiring, loading, error } = useSelector(
     (state) => state.analytics
   );
+
+  const handleExport = () => {
+    try {
+      // Create CSV content
+      let csvContent = "Analytics Report\n\n";
+
+      // 1. Add Summary Stats
+      csvContent += "Summary Statistics\n";
+      csvContent += "Metric,Value\n";
+      csvContent += `Total Sales,₹${totalSales.toLocaleString()}\n`;
+      csvContent += `Transactions,${sales.reduce(
+        (sum, item) => sum + item.count,
+        0
+      )}\n`;
+      csvContent += `Top Product,${top[0]?.name || "N/A"}\n`;
+      csvContent += `Products Expiring Soon,${expiring.length}\n\n`;
+
+      // 2. Add Sales Data
+      csvContent += "Sales Trend\n";
+      csvContent += "Period,Total Sales\n";
+      salesChartData.forEach((item) => {
+        csvContent += `${item.name},₹${item.sales.toLocaleString()}\n`;
+      });
+      csvContent += "\n";
+
+      // 3. Add Top Products
+      csvContent += "Top Selling Products\n";
+      csvContent += "Product Name,Category,Units Sold\n";
+      top.forEach((item) => {
+        csvContent += `${item.name},${item.category},${item.totalSold}\n`;
+      });
+      csvContent += "\n";
+
+      // 4. Add Least Selling Products
+      csvContent += "Least Selling Products\n";
+      csvContent += "Product Name,Category,Units Sold\n";
+      least.forEach((item) => {
+        csvContent += `${item.name},${item.category},${item.totalSold}\n`;
+      });
+      csvContent += "\n";
+
+      // 5. Add Expiring Products
+      csvContent += "Products Expiring Soon\n";
+      csvContent += "Product Name,Expiry Date,Quantity,Days Left\n";
+      expiring.forEach((product) => {
+        const expiryDate = new Date(product.expiryDate);
+        const today = new Date();
+        const diffDays = Math.ceil(
+          (expiryDate - today) / (1000 * 60 * 60 * 24)
+        );
+
+        csvContent += `${product.name},${expiryDate.toLocaleDateString()},${
+          product.quantity
+        },${diffDays}\n`;
+      });
+
+      // Create download link
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", "analytics-report.csv");
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Error exporting report:", error);
+      alert("Failed to export report. Please try again.");
+    }
+  };
 
   useEffect(() => {
     dispatch(fetchAnalytics());
@@ -95,7 +166,7 @@ const NewDashboard = () => {
     return (
       <Layout>
         <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
         </div>
       </Layout>
     );
@@ -114,7 +185,7 @@ const NewDashboard = () => {
     <Layout>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-white">Analytics Dashboard</h1>
+          <h1 className="text-3xl font-bold text-white">Analytics Dashboard</h1>
           <div className="flex space-x-2">
             <Button onClick={() => handleExport()}>Export Report</Button>
           </div>
@@ -165,7 +236,7 @@ const NewDashboard = () => {
             }
           />
           <StatCard
-            title="Top Product"
+            title="Top Selling Product"
             value={top[0]?.name || "N/A"}
             icon={
               <svg
@@ -341,7 +412,7 @@ const NewDashboard = () => {
 
         {/* Expiring Products */}
         <div className="bg-neutral-800 p-4 rounded-xl border border-neutral-700 shadow-lg">
-          <h3 className="text-lg font-semibold text-white mb-4">
+          <h3 className="text-xl font-semibold text-neutral-200 mb-4">
             Products Expiring Soon
           </h3>
           <div className="overflow-x-auto">
