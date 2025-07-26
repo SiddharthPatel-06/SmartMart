@@ -8,14 +8,21 @@ import {
 
 export const fetchAnalytics = createAsyncThunk(
   "analytics/fetchAll",
-  async () => {
-    const [sales, top, least, expiring] = await Promise.all([
-      getSalesStatsService(),
-      getTopProductsService(),
-      getLeastProductsService(),
-      getExpiringProductsService(),
-    ]);
-    return { sales, top, least, expiring };
+  async (params = {}, { rejectWithValue }) => {
+    try {
+      const { range, topLimit, leastLimit, days } = params;
+
+      const [sales, top, least, expiring] = await Promise.all([
+        getSalesStatsService(range),
+        getTopProductsService(topLimit),
+        getLeastProductsService(leastLimit),
+        getExpiringProductsService(days),
+      ]);
+
+      return { sales, top, least, expiring, params };
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
   }
 );
 
@@ -28,6 +35,12 @@ const analyticsSlice = createSlice({
     top: [],
     least: [],
     expiring: [],
+    params: {
+      range: "daily",
+      topLimit: 5,
+      leastLimit: 5,
+      days: 30,
+    },
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -42,10 +55,11 @@ const analyticsSlice = createSlice({
         state.top = action.payload.top;
         state.least = action.payload.least;
         state.expiring = action.payload.expiring;
+        state.params = action.payload.params || state.params;
       })
       .addCase(fetchAnalytics.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload;
       });
   },
 });
