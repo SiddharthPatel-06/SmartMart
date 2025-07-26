@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Layout from "../components/Layout";
 import { fetchAnalytics } from "../app/slices/analyticsSlice";
@@ -16,20 +16,21 @@ import {
   Legend,
 } from "recharts";
 import Button from "../components/ui/Button";
+import FilterDropdown from "../components/FilterDropdown";
 
 const COLORS = [
-  "#818CF8", // Light Indigo
-  "#34D399", // Light Emerald
-  "#FBBF24", // Light Amber
-  "#F472B6", // Light Pink
-  "#A78BFA", // Light Violet
-  "#60A5FA", // New: Light Blue
-  "#2DD4BF", // New: Light Teal
-  "#FCD34D", // New: Light Golden
+  "#818CF8",
+  "#34D399",
+  "#FBBF24",
+  "#F472B6",
+  "#A78BFA",
+  "#60A5FA",
+  "#2DD4BF",
+  "#FCD34D",
 ];
 
 const StatCard = ({ title, value, change, icon }) => (
-  <div className="bg-neutral-800 py-2 px-4 rounded-xl border border-neutral-700 shadow-lg hover:shadow-xl transition-shadow">
+  <div className="bg-neutral-950 py-2 px-4 rounded-xl border border-neutral-700 shadow-lg hover:shadow-xl transition-shadow">
     <div className="flex justify-between items-start">
       <div>
         <p className="text-neutral-400 text-sm font-medium">{title}</p>
@@ -44,80 +45,138 @@ const StatCard = ({ title, value, change, icon }) => (
           </p>
         )}
       </div>
-      <div className="bg-neutral-700 p-3 rounded-lg">{icon}</div>
+      <div className="bg-neutral-950 p-3 rounded-lg border border-neutral-700">{icon}</div>
     </div>
   </div>
 );
 
-const ProductTable = ({ title, data, colorClass }) => (
-  <div className="bg-neutral-800 p-4 rounded-xl border border-neutral-700 shadow-lg">
-    <h3 className="text-xl font-semibold text-neutral-200 mb-3">{title}</h3>
-    <div className="space-y-2">
-      {data.map((item, index) => (
-        <div
-          key={index}
-          className="flex justify-between items-center py-2 border-b border-neutral-700 last:border-0"
-        >
-          <div>
-            <p className="font-medium text-neutral-300">{item.name}</p>
-            <p className="text-xs text-neutral-400">{item.category}</p>
+const ProductTable = ({
+  title,
+  data,
+  colorClass,
+  filterType,
+  currentFilter,
+  onFilterChange,
+}) => {
+  const rangeOptions = [
+    { value: "daily", label: "Daily" },
+    { value: "weekly", label: "Weekly" },
+    { value: "monthly", label: "Monthly" },
+  ];
+
+  return (
+    <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-700 shadow-lg relative">
+      <div className="flex justify-between items-center mb-3">
+        <h3 className="text-xl font-semibold text-neutral-200">{title}</h3>
+        {filterType === "range" ? (
+          <FilterDropdown
+            type="range"
+            options={rangeOptions}
+            currentValue={currentFilter.range}
+            onFilterChange={onFilterChange}
+            label="Time Range"
+          />
+        ) : (
+          <FilterDropdown
+            type={filterType}
+            currentValue={currentFilter[filterType]}
+            onFilterChange={onFilterChange}
+            label={title}
+            min={1}
+            max={20}
+          />
+        )}
+      </div>
+      <div className="space-y-2">
+        {data.map((item, index) => (
+          <div
+            key={index}
+            className="flex justify-between items-center py-2 border-b border-neutral-700 last:border-0"
+          >
+            <div>
+              <p className="font-medium text-neutral-300">{item.name}</p>
+              <p className="text-xs text-neutral-400">{item.category}</p>
+            </div>
+            <p className={`font-semibold ${colorClass}`}>
+              {item.totalSold} sold
+            </p>
           </div>
-          <p className={`font-semibold ${colorClass}`}>{item.totalSold} sold</p>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const NewDashboard = () => {
   const dispatch = useDispatch();
-  const { sales, top, least, expiring, loading, error } = useSelector(
+  const { sales, top, least, expiring, loading, error, params } = useSelector(
     (state) => state.analytics
   );
+
+  const handleFilterChange = (type, value) => {
+    const newParams = {
+      ...params,
+      [type]: value,
+    };
+    dispatch(fetchAnalytics(newParams));
+  };
 
   const handleExport = () => {
     try {
       // Create CSV content
       let csvContent = "Analytics Report\n\n";
 
-      // 1. Add Summary Stats
+      // 1. Add Report Parameters
+      csvContent += "Report Parameters\n";
+      csvContent += `Time Range,${params.range}\n`;
+      csvContent += `Top Products Limit,${params.topLimit}\n`;
+      csvContent += `Least Products Limit,${params.leastLimit}\n`;
+      csvContent += `Expiring Within,${params.days} days\n\n`;
+
+      // 2. Add Summary Statistics
       csvContent += "Summary Statistics\n";
       csvContent += "Metric,Value\n";
       csvContent += `Total Sales,₹${totalSales.toLocaleString()}\n`;
-      csvContent += `Transactions,${sales.reduce(
+      csvContent += `Total Transactions,${sales.reduce(
         (sum, item) => sum + item.count,
         0
       )}\n`;
-      csvContent += `Top Product,${top[0]?.name || "N/A"}\n`;
+      csvContent += `Top Selling Product,${top[0]?.name || "N/A"}\n`;
       csvContent += `Products Expiring Soon,${expiring.length}\n\n`;
 
-      // 2. Add Sales Data
+      // 3. Add Sales Data
       csvContent += "Sales Trend\n";
-      csvContent += "Period,Total Sales\n";
-      salesChartData.forEach((item) => {
-        csvContent += `${item.name},₹${item.sales.toLocaleString()}\n`;
+      csvContent += "Date,Total Sales,Number of Transactions\n";
+      sales.forEach((item) => {
+        csvContent += `${item._id},₹${item.totalSales.toLocaleString()},${
+          item.count
+        }\n`;
       });
       csvContent += "\n";
 
-      // 3. Add Top Products
+      // 4. Add Top Products
       csvContent += "Top Selling Products\n";
-      csvContent += "Product Name,Category,Units Sold\n";
-      top.forEach((item) => {
-        csvContent += `${item.name},${item.category},${item.totalSold}\n`;
+      csvContent += "Rank,Product Name,Category,Units Sold\n";
+      top.forEach((item, index) => {
+        csvContent += `${index + 1},${item.name},${item.category},${
+          item.totalSold
+        }\n`;
       });
       csvContent += "\n";
 
-      // 4. Add Least Selling Products
+      // 5. Add Least Selling Products
       csvContent += "Least Selling Products\n";
-      csvContent += "Product Name,Category,Units Sold\n";
-      least.forEach((item) => {
-        csvContent += `${item.name},${item.category},${item.totalSold}\n`;
+      csvContent += "Rank,Product Name,Category,Units Sold\n";
+      least.forEach((item, index) => {
+        csvContent += `${index + 1},${item.name},${item.category},${
+          item.totalSold
+        }\n`;
       });
       csvContent += "\n";
 
-      // 5. Add Expiring Products
-      csvContent += "Products Expiring Soon\n";
-      csvContent += "Product Name,Expiry Date,Quantity,Days Left\n";
+      // 6. Add Expiring Products
+      csvContent += "Products Expiring Soon (Within ${params.days} days)\n";
+      csvContent += "Product Name,Expiry Date,Quantity,Days Remaining\n";
       expiring.forEach((product) => {
         const expiryDate = new Date(product.expiryDate);
         const today = new Date();
@@ -135,7 +194,10 @@ const NewDashboard = () => {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.setAttribute("href", url);
-      link.setAttribute("download", "analytics-report.csv");
+      link.setAttribute(
+        "download",
+        `analytics-report-${new Date().toISOString().split("T")[0]}.csv`
+      );
       link.style.visibility = "hidden";
       document.body.appendChild(link);
       link.click();
@@ -147,16 +209,14 @@ const NewDashboard = () => {
   };
 
   useEffect(() => {
-    dispatch(fetchAnalytics());
+    dispatch(fetchAnalytics(params));
   }, [dispatch]);
 
   const totalSales = sales.reduce((sum, item) => sum + item.totalSales, 0);
-
   const salesChartData = sales.map((item) => ({
     name: item._id,
     sales: item.totalSales,
   }));
-
   const topProductsChartData = top.map((item) => ({
     name: item.name,
     value: item.totalSold,
@@ -186,9 +246,7 @@ const NewDashboard = () => {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold text-white">Analytics Dashboard</h1>
-          <div className="flex space-x-2">
-            <Button onClick={() => handleExport()}>Export Report</Button>
-          </div>
+          <Button onClick={handleExport}>Export Report</Button>
         </div>
 
         {/* Summary Stats */}
@@ -203,7 +261,6 @@ const NewDashboard = () => {
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
               >
                 <path
                   strokeLinecap="round"
@@ -224,7 +281,6 @@ const NewDashboard = () => {
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
               >
                 <path
                   strokeLinecap="round"
@@ -244,7 +300,6 @@ const NewDashboard = () => {
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
               >
                 <path
                   strokeLinecap="round"
@@ -264,7 +319,6 @@ const NewDashboard = () => {
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
               >
                 <path
                   strokeLinecap="round"
@@ -280,10 +334,21 @@ const NewDashboard = () => {
         {/* Charts Row */}
         <div className="grid gap-6 lg:grid-cols-2">
           {/* Sales Trend */}
-          <div className="bg-neutral-800 p-4 rounded-xl border border-neutral-700 shadow-lg">
-            <h3 className="text-lg font-semibold text-white mb-4">
-              Sales Trend
-            </h3>
+          <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-700 shadow-lg relative">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-white">Sales Trend</h3>
+              <FilterDropdown
+                type="range"
+                options={[
+                  { value: "daily", label: "Daily" },
+                  { value: "weekly", label: "Weekly" },
+                  { value: "monthly", label: "Monthly" },
+                ]}
+                currentValue={params.range}
+                onFilterChange={handleFilterChange}
+                label="Time Range"
+              />
+            </div>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={salesChartData}>
@@ -305,14 +370,21 @@ const NewDashboard = () => {
           </div>
 
           {/* Top Products */}
-          <div className="bg-neutral-800 p-4 rounded-xl border border-neutral-700 shadow-lg">
-            <h3 className="text-lg font-semibold text-white mb-4">
-              Top Products
-            </h3>
+          <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-700 shadow-lg relative">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-white">Top Products</h3>
+              <FilterDropdown
+                type="topLimit"
+                currentValue={params.topLimit}
+                onFilterChange={handleFilterChange}
+                label="Top Products"
+                min={1}
+                max={20}
+              />
+            </div>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  {/* Gradient definitions for each segment */}
                   <defs>
                     {topProductsChartData.map((entry, index) => (
                       <linearGradient
@@ -359,8 +431,6 @@ const NewDashboard = () => {
                       />
                     ))}
                   </Pie>
-
-                  {/* Custom tooltip matching bar chart style */}
                   <Tooltip
                     contentStyle={{
                       backgroundColor: "#1F2937",
@@ -375,8 +445,6 @@ const NewDashboard = () => {
                     }}
                     formatter={(value, name, props) => [`${value} units`, name]}
                   />
-
-                  {/* Custom legend at bottom */}
                   <Legend
                     layout="horizontal"
                     verticalAlign="bottom"
@@ -401,20 +469,36 @@ const NewDashboard = () => {
             title="Top Selling Products"
             data={top}
             colorClass="text-neutral-300"
+            filterType="topLimit"
+            currentFilter={params}
+            onFilterChange={handleFilterChange}
           />
 
           <ProductTable
             title="Least Selling Products"
             data={least}
             colorClass="text-neutral-300"
+            filterType="leastLimit"
+            currentFilter={params}
+            onFilterChange={handleFilterChange}
           />
         </div>
 
         {/* Expiring Products */}
-        <div className="bg-neutral-800 p-4 rounded-xl border border-neutral-700 shadow-lg">
-          <h3 className="text-xl font-semibold text-neutral-200 mb-4">
-            Products Expiring Soon
-          </h3>
+        <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-700 shadow-lg relative">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-semibold text-neutral-200">
+              Products Expiring Soon
+            </h3>
+            <FilterDropdown
+              type="days"
+              currentValue={params.days}
+              onFilterChange={handleFilterChange}
+              label="Expiring Products"
+              min={1}
+              max={365}
+            />
+          </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-neutral-700">
               <thead>

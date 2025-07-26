@@ -378,8 +378,8 @@ export default function InventoryPage() {
       </div>
 
       {/* Product Table */}
-      <div className="rounded border overflow-x-auto max-h-[500px]">
-        <table className="w-full text-sm table-auto">
+      <div className="rounded overflow-x-auto max-h-[500px]">
+        <table className="w-full text-sm table-auto border border-neutral-700">
           <thead className="bg-muted text-left sticky top-0 z-10 bg-neutral-900">
             <tr>
               <th className="p-2 bg-muted">Image</th>
@@ -393,7 +393,7 @@ export default function InventoryPage() {
           </thead>
           <tbody className="divide-y">
             {filtered.map((item) => (
-              <tr key={item._id}>
+              <tr className="border border-neutral-700" key={item._id}>
                 <td className="p-2">
                   <img
                     src={item.imageUrl || "/placeholder.png"}
@@ -404,7 +404,7 @@ export default function InventoryPage() {
                 <td className="p-2 font-medium">{item.name}</td>
                 <td className="p-2">{item.sku}</td>
                 <td className="p-2">{item.category}</td>
-                <td className="p-2">${item.price.toFixed(2)}</td>
+                <td className="p-2">₹{item.price.toFixed(2)}</td>
                 <td className="p-2">
                   {item.expiryDate ? (
                     <span className="text-sm">
