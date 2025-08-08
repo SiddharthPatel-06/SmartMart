@@ -5,7 +5,7 @@
 A full-stack retail platform (like D-Mart, K-Mart) built with **MERN stack** + deep **DSA logic** + smart **GenAI features**.  
 🔑 **Goal:** Show practical dev + strong DSA + AI integration in one real-world project.
 
-📧 connectwithsiddh@gmail.com  
+📧 heycodewithsid@gmail.com  
 🔗 [LinkedIn](https://www.linkedin.com/in/siddharth-patel-b1ba53270/)
 
 ---
@@ -153,7 +153,7 @@ REACT_APP_API_URL=http://localhost:4000
 
 ## 📬 Contact
 
-📩 **Email:** connectwithsiddh@gmail.com  
+📩 **Email:** heycodewithsid@gmail.com  
 🔗 **LinkedIn:** [Siddharth Patel](https://www.linkedin.com/in/siddharth-patel-b1ba53270/)
 
 ---
