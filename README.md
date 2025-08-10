@@ -34,7 +34,7 @@ A full-stack retail platform (like D-Mart, K-Mart) built with **MERN stack** + d
 | Charts           | Chart.js                                 |
 | Maps             | Leaflet / Mapbox                         |
 | File Upload      | CSV (XLSX parser)                        |
-| GenAI            | OpenAI API + LangChain.js                |
+| GenAI            | Google Gemini API + LangChain.js                |
 | Deployment       | 🐳 Docker + Docker Compose               |
 | Cloud Hosting    | Render / Railway / Fly.io (Docker-based) |
 
@@ -69,7 +69,7 @@ A full-stack retail platform (like D-Mart, K-Mart) built with **MERN stack** + d
 
 ---
 
-## 🤖 GenAI Powered Features (OpenAI + LangChain)
+## 🤖 GenAI Powered Features (Google Gemini + LangChain)
 
 | Feature                           | What It Does                             | Why It’s 🔥                        |
 |-----------------------------------|------------------------------------------|-----------------------------------|
@@ -146,7 +146,7 @@ REACT_APP_API_URL=http://localhost:4000
 ---
 
 
-**"Built SmartMart, a full-stack retail platform (MERN) with integrated DSA logic (Graph, Heap, HashMap, Tree) and GenAI features (OpenAI + LangChain) for dynamic insights, report generation, and smart offer suggestions."**
+**"Built SmartMart, a full-stack retail platform (MERN) with integrated DSA logic (Graph, Heap, HashMap, Tree) and GenAI features (Google Gemini + LangChain) for dynamic insights, report generation, and smart offer suggestions."**
 
 
 ---
