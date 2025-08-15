@@ -51,7 +51,7 @@ const Billing = () => {
       if (search.trim()) {
         try {
           const res = await axios.get(
-            `http://localhost:4000/api/v1/products/search?q=${search.trim()}`
+            `https://smartmart-qno0.onrender.com/api/v1/products/search?q=${search.trim()}`
           );
           setResults(res.data);
         } catch (error) {

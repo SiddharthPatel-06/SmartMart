@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:4000/api/v1/analytics";
+const API_URL = "https://smartmart-qno0.onrender.com/api/v1/analytics";
 
 export const getSalesStatsService = async (range = "daily") => {
   const res = await axios.get(`${API_URL}/sales?range=${range}`);

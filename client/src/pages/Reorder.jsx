@@ -8,7 +8,7 @@ const AdminReorderRequests = () => {
   const [filter, setFilter] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const API_BASE_URL = "http://localhost:4000";
+  const API_BASE_URL = "https://smartmart-qno0.onrender.com";
 
 const fetchRequests = async () => {
   try {

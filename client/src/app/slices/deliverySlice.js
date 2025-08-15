@@ -6,7 +6,7 @@ export const getOptimizedBatch = createAsyncThunk(
   async (martId, { rejectWithValue }) => {
     try {
       const { data } = await axios.get(
-        `http://localhost:4000/api/v1/order/batch/${martId}`
+        `https://smartmart-qno0.onrender.com/api/v1/order/batch/${martId}`
       );
 
       return {
@@ -26,7 +26,7 @@ export const updateOrderStatus = createAsyncThunk(
   async ({ orderId, status }, { rejectWithValue }) => {
     try {
       const { data } = await axios.put(
-        "http://localhost:4000/api/v1/order/status",
+        "https://smartmart-qno0.onrender.com/api/v1/order/status",
         { orderId, status }
       );
       return { orderId, status: data.status };

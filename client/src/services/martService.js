@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:4000/api/v1/marts";
+const BASE_URL = "https://smartmart-qno0.onrender.com/api/v1/marts";
 
 export const fetchMartByIdService = async (martId) => {
   if (!martId) throw new Error("Mart ID is missing.");

@@ -9,7 +9,7 @@ import { FiPackage } from "react-icons/fi";
 import { AiOutlineStock } from "react-icons/ai";
 import { FcExpired } from "react-icons/fc";
 
-const API_BASE_URL = "http://localhost:4000";
+const API_BASE_URL = "https://smartmart-qno0.onrender.com";
 
 export default function InventoryPage() {
   const [products, setProducts] = useState([]);

@@ -5,7 +5,7 @@ export const createOrderAsync = createAsyncThunk(
   "order/create",
   async (orderData, thunkAPI) => {
     const res = await axios.post(
-      "http://localhost:4000/api/v1/order",
+      "https://smartmart-qno0.onrender.com/api/v1/order",
       orderData
     );
     return res.data;

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:4000/api/v1";
+const API_URL = "https://smartmart-qno0.onrender.com/api/v1";
 
 export const updateProfileService = async (userId, formData) => {
   if (!userId) {

@@ -1,5 +1,5 @@
 import axios from "axios";
-const API = "http://localhost:4000/api/v1";
+const API = "https://smartmart-qno0.onrender.com/api/v1";
 
 export const addToCartService = async (data) =>
   await axios.post(`${API}/cart/add`, data);
