@@ -1,86 +1,164 @@
-# 🛒 SmartMart – Intelligent Mart Management System
+# 🛒 SmartMart – Intelligent Mart Management System (MERN + DSA + GenAI)
 
-**Simplify Your Store. Smarten Your Sales.**
+## ✨ What is SmartMart?
 
-A smart full-stack web app for retail stores (like D-Mart, K-Mart) — built using **MERN stack** + **DSA concepts**.
+**Simplify Store Management. Showcase Your Dev + DSA + GenAI Power.**
 
-📩 **Mail:** connectwithsiddh@gmail.com  
-🔗 **LinkedIn:** [Siddharth Patel](https://www.linkedin.com/in/siddharth-patel-b1ba53270/)
+A full-stack retail platform (like D-Mart, K-Mart) built with **MERN stack** + deep **DSA logic** + smart **GenAI features**.
 
 ---
 
-## 🎯 What Problem It Solves
+## 🌟 Key Highlights
 
-- Tracks stock, expiry, reorder alerts
-- Helps with fast billing, smart offers
-- Optimizes delivery and warehouse
-- Shows sales reports and product trends
-- Analytics Dashboard
+- Role-based Login (Admin, Staff, Manager)
+- Smart Billing + Offers + QR Scan
+- Auto Reorder + Inventory Rules
+- Sales Analytics Dashboard
+- Delivery Route Optimization
+- AI Assistant (GenAI)
+- Bulk CSV Upload
+- Multi-Mart Branch System
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Frontend:** React.js (or React Native)
-- **Backend:** Node.js + Express.js
-- **Database:** MongoDB
-- **Extras:** JWT Auth, Chart.js, CSV, Maps
+| Layer         | Tech Used                                |
+| ------------- | ---------------------------------------- |
+| Frontend      | React.js / React Native                  |
+| Backend       | Node.js, Express.js                      |
+| Database      | MongoDB (Atlas)                          |
+| Auth          | JWT (Role-based Access)                  |
+| Charts        | Chart.js                                 |
+| Maps          | Leaflet / Mapbox                         |
+| File Upload   | CSV (XLSX parser)                        |
+| GenAI         | Google Gemini API + LangChain.js         |
+| Deployment    | 🐳 Docker + Docker Compose               |
+| Cloud Hosting | Render / Railway / Fly.io (Docker-based) |
 
 ---
 
-## 🔥 Features + DSA Concepts
+## Problem It Solves
 
-### 1. Inventory Management  
-Add/edit/delete products, track expiry  
-🧠 DSA: `HashMap`, `MinHeap`, `Queue`
-
-### 2. Barcode Scanner  
-Scan QR/Barcode → auto fill cart  
-🧠 DSA: `Trie` (optional)
-
-### 3. Smart Billing System  
-Cart, discounts, invoice  
-🧠 DSA: `HashMap`, `Stack`, `Tree`
-
-### 4. Route Optimization  
-Best path for delivery  
-🧠 DSA: `Graph`, `Dijkstra`, `Priority Queue`
-
-### 5. Auto Reorder  
-Low stock → auto supplier order  
-🧠 DSA: `MinHeap`, `Queue`
-
-### 6. Analytics Dashboard  
-Sales trends, top items, expiry alerts  
-🧠 DSA: `HashMap`, `Sort`, `Moving Avg`
-
-### 7. Customer/Supplier Management  
-Track people, order history  
-🧠 DSA: `Linked List`, `Set`
-
-### 8. Multi-Mart Support  
-One owner, many branches  
-🧠 DSA: `Graph`, `DFS`
-
-### 9. Bulk CSV Upload  
-Upload 100+ items via Excel  
-🧠 DSA: `Array`, `Queue`
-
-### 10. Role-based Access  
-Admin, Billing, Stock Manager  
-🧠 DSA: `Map`
-
-### 11. Reports Generator  
-PDF/CSV reports of sales, profit  
-🧠 DSA: `HashMap`, `Sort`, `Aggregation`
-
-### 12. Offers & Coupons  
-Apply rules like discount if cart > ₹500  
-🧠 DSA: `Tree`, `HashMap`
+- Track stock, expiry, reorder levels
+- Fast billing with smart offers
+- Delivery planning & optimization
+- Sales insights & trends
+- Predictive restocking
 
 ---
 
-## 📬 Contact
+## 🔥 Smart Features + DSA Concepts
 
-**Email:** connectwithsiddh@gmail.com  
-**LinkedIn:** [Siddharth Patel](https://www.linkedin.com/in/siddharth-patel-b1ba53270/)
+| Feature                      | Description                    | DSA Used                             |
+| ---------------------------- | ------------------------------ | ------------------------------------ |
+| Inventory Management         | Stock tracking, expiry alerts  | `HashMap`, `MinHeap`, `Queue`        |
+| Barcode/QR Scanner           | Scan code → Auto-fill product  | `Trie` (optional)                    |
+| Smart Billing System         | Cart, coupons, invoice         | `HashMap`, `Stack`, `Tree`           |
+| Delivery Route Optimization  | Shortest delivery path         | `Graph`, `Dijkstra`, `PriorityQueue` |
+| Auto Reorder System          | Stock < threshold → reorder    | `MinHeap`, `Queue`, `HashMap`        |
+| Analytics Dashboard          | Top products, expiry alerts    | `Sort`, `Set`, `Moving Avg`          |
+| Customer/Supplier Management | Track orders, avoid duplicates | `Linked List`, `Set`                 |
+| Multi-Mart Support           | Branch transfers               | `Graph`, `DFS`                       |
+| Bulk CSV Upload              | Add 100s of products           | `Array`, `Queue`                     |
+| Role-based Access Control    | Admin, Billing, Manager roles  | `Map`                                |
+| Report Generator             | PDF/CSV for sales & profit     | `HashMap`, `Sort`, `Aggregate`       |
+| Offer & Coupon Engine        | Discounts based on cart        | `Tree`, `HashMap`                    |
+
+---
+
+## 🤖 GenAI Powered Features (Google Gemini + LangChain)
+
+| Feature                        | What It Does                             | Why It’s 🔥                      |
+| ------------------------------ | ---------------------------------------- | -------------------------------- |
+| **AI Assistant**               | Ask: “Show expired items”, “Top seller?” | Real-time DB insights with AI    |
+| **AI Report Generator**        | Smart monthly summaries in plain English | Adds business intelligence       |
+| **Smart Offer Generator**      | Suggest combo offers, discounts          | AI uses sales history to suggest |
+| **Product Description Filler** | Auto-generates product details           | Looks polished, professional     |
+| **AI Chatbot (for Staff)**     | Help on using system features            | Boosts UX and modern touch       |
+
+---
+
+## 📸 Screenshots
+
+### 📊 Analytics Dashboard
+
+![Analytics Dashboard](https://github.com/SiddharthPatel-06/SmartMart/blob/main/client/public/screenshots/Analytics-Dashboard.png?raw=true)
+
+### 🧾 Billing Page
+
+![Billing](https://github.com/SiddharthPatel-06/SmartMart/blob/main/client/public/screenshots/Billing.png?raw=true)
+
+### 🛒 Create Order
+
+![Create Order](https://github.com/SiddharthPatel-06/SmartMart/blob/main/client/public/screenshots/create-order.png?raw=true)
+
+### 🗺️ Route Optimization Map
+
+![Route Map](https://github.com/SiddharthPatel-06/SmartMart/blob/main/client/public/screenshots/route-map.png?raw=true)
+
+---
+
+## 📝 Installation & Setup
+
+```bash
+# Clone the repo
+git clone https://github.com/SiddharthPatel-06/SmartMart.git
+cd smartmart
+
+# Install all dependencies (backend + frontend)
+npm install
+
+# Start both backend and frontend together
+npm run dev
+```
+
+✅ Make sure your `package.json` has a `dev` script like this:
+
+```json
+"scripts": {
+    "client": "npm run dev --prefix client",
+    "server": "npm run dev --prefix server",
+    "dev": "concurrently \"npm run client\" \"npm run server\""
+  }
+```
+
+✅ Setup `.env` files in both `backend/` and `frontend/` folders:
+
+**In `backend/.env`:**
+
+```env
+MONGODB_URL= *******************************
+PORT=4000
+JWT_SECRET= *******************************
+EMAIL_USER= *******************************
+EMAIL_PASS= *******************************
+CLOUDINARY_CLOUD_NAME= *******************************
+CLOUDINARY_API_KEY= *******************************
+CLOUDINARY_API_SECRET= *******************************
+OPENCAGE_API_KEY= *******************************
+
+```
+
+**In `frontend/.env`:**
+
+```env
+REACT_APP_API_URL=http://localhost:5173
+```
+
+---
+
+**"Built SmartMart, a full-stack retail platform (MERN) with integrated DSA logic (Graph, Heap, HashMap, Tree) and GenAI features (Google Gemini + LangChain) for dynamic insights, report generation, and smart offer suggestions."**
+
+---
+
+## Connect with Me
+
+- <a href="https://www.linkedin.com/in/siddharth-dev/" target="_blank">LinkedIn</a>
+- <a href="https://x.com/Siddharth0693" target="_blank">Twitter</a>
+- <a href="mailto:heycodewithsid@gmail.com" target="_blank">heycodewithsid@gmail.com</a>
+- <a href="https://siddharth-dev.vercel.app/" target="_blank">Portfolio</a>
+
+---
+
+Made with ❤️ by **Siddharth Patel**

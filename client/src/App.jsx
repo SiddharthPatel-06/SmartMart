@@ -1,38 +1,92 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import AuthForm from './components/ui/AuthForm';
-import ProtectedRoute from './components/ui/ProtectedRoute';
-import Dashboard from './pages/Dashboard';
-import NewDashboard from './pages/NewDashboard';
-import InventoryPage from './pages/Inventory';
-import Layout from './components/Layout';
+import React from "react";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import AuthForm from "./components/ui/AuthForm";
+import ProtectedRoute from "./components/ui/ProtectedRoute";
+import Dashboard from "./pages/Dashboard";
+import NewDashboard from "./pages/NewDashboard";
+import InventoryPage from "./pages/Inventory";
+import Layout from "./components/Layout";
+import Home from "./pages/Home";
+import Billing from "./pages/Billing";
+import NotFound from "./pages/NotFound";
+import { Toaster } from "react-hot-toast";
+import CreateOrder from "./pages/CreateOrder";
+import DeliveryMap from "./pages/DeliveryMap";
+import { restoreAuth } from "./app/slices/authSlice";
 
-const App = () => (
-  <Router>
-    <Routes>
-      <Route path="/login" element={<AuthForm isSignup={false} />} />
-      <Route path="/signup" element={<AuthForm isSignup={true} />} />
+const App = () => {
+  const dispatch = useDispatch();
 
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const user = localStorage.getItem("user");
+    if (token && user) {
+      dispatch(restoreAuth({ token, user: JSON.parse(user) }));
+    }
+  }, []);
+
+  return (
+    <Router>
+      <Toaster position="top-right" />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<AuthForm isSignup={false} />} />
+        <Route path="/signup" element={<AuthForm isSignup={true} />} />
+
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
               <NewDashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/inventory"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <InventoryPage />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-    </Routes>
-  </Router>
-);
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/inventory"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <InventoryPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/billing"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Billing />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/create-order"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <CreateOrder />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/delivery-map"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <DeliveryMap />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Router>
+  );
+};
 
 export default App;

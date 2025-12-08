@@ -250,8 +250,7 @@ const Dashboard = () => {
                   className="bg-neutral-800 p-1 rounded w-24 text-white focus:outline-none focus:ring-1 focus:ring-neutral-600"
                 />
               </div>
-            ) : 
-            (
+            ) : (
               `${profile.firstName || "N/A"} ${profile.lastName || "N/A"}`
             )}
           </h3>

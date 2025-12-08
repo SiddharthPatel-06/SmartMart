@@ -87,12 +87,17 @@ const authSlice = createSlice({
       state.user = null;
       state.token = null;
       localStorage.removeItem("token");
+      localStorage.removeItem("user");
     },
     clearError: (state) => {
       state.error = null;
     },
     updateUser: (state, action) => {
       state.user = action.payload;
+    },
+    restoreAuth: (state, action) => {
+      state.token = action.payload.token || null;
+      state.user = action.payload.user || null;
     },
   },
   extraReducers: (builder) => {
@@ -106,6 +111,7 @@ const authSlice = createSlice({
         state.user = action.payload.user;
         state.token = action.payload.token;
         localStorage.setItem("token", action.payload.token);
+        localStorage.setItem("user", JSON.stringify(action.payload.user));
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.status = "failed";
@@ -120,6 +126,7 @@ const authSlice = createSlice({
         state.user = action.payload.user;
         state.token = action.payload.token;
         localStorage.setItem("token", action.payload.token);
+        localStorage.setItem("user", JSON.stringify(action.payload.user));
       })
       .addCase(signupUser.rejected, (state, action) => {
         state.status = "failed";
@@ -146,6 +153,7 @@ const authSlice = createSlice({
         state.user = action.payload.user;
         state.token = action.payload.token;
         localStorage.setItem("token", action.payload.token);
+        localStorage.setItem("user", JSON.stringify(action.payload.user));
       })
       .addCase(verifyOtp.rejected, (state, action) => {
         state.status = "failed";
@@ -165,6 +173,7 @@ const authSlice = createSlice({
             ...action.payload?.profile,
           },
         };
+        localStorage.setItem("user", JSON.stringify(state.user));
       })
       .addCase(updateProfile.rejected, (state, action) => {
         state.profileStatus = "failed";
@@ -173,5 +182,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, clearError, updateUser } = authSlice.actions;
+export const { logout, clearError, updateUser, restoreAuth } =
+  authSlice.actions;
 export default authSlice.reducer;

@@ -9,6 +9,7 @@ import {
 } from "../../app/slices/authSlice";
 import Button from "./Button";
 import OtpForm from "./OtpForm";
+import toast from "react-hot-toast";
 
 export default function AuthForm({ isSignup }) {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -37,8 +38,10 @@ export default function AuthForm({ isSignup }) {
       }
 
       await dispatch(sendOtp({ email: formData.email })).unwrap();
+      toast.success("OTP sent to your email ✉️");
       setStep("otp");
     } catch (err) {
+      toast.error(err.message || "Failed to send OTP. Please try again.");
       setError(err.message || "Failed to send OTP. Please try again.");
     } finally {
       setIsLoading(false);
@@ -70,7 +73,9 @@ export default function AuthForm({ isSignup }) {
         ).unwrap();
 
         if (result?.token) {
+          toast.success("Signup Successfully!");
           localStorage.setItem("token", result.token);
+          localStorage.setItem("user", JSON.stringify(result.user));
           navigate("/dashboard");
         }
       } else {
@@ -83,11 +88,14 @@ export default function AuthForm({ isSignup }) {
         ).unwrap();
 
         if (result?.token) {
+          toast.success("Login Successfully!");
           localStorage.setItem("token", result.token);
+          localStorage.setItem("user", JSON.stringify(result.user));
           navigate("/dashboard");
         }
       }
     } catch (err) {
+      toast.error(err.message || "Verification failed");
       setError(err.message || "Verification failed. Please try again.");
     } finally {
       setIsLoading(false);
@@ -100,7 +108,9 @@ export default function AuthForm({ isSignup }) {
 
     try {
       await dispatch(sendOtp({ email: formData.email })).unwrap();
+      toast.success("OTP resent to your email");
     } catch (err) {
+      toast.error(err.message || "Failed to resend OTP.");
       setError(err.message || "Failed to resend OTP. Please try again.");
     } finally {
       setIsLoading(false);
@@ -115,10 +125,13 @@ export default function AuthForm({ isSignup }) {
     try {
       const result = await dispatch(loginUser(formData)).unwrap();
       if (result?.token) {
+        toast.success("Login Successfully!");
         localStorage.setItem("token", result.token);
+        localStorage.setItem("user", JSON.stringify(result.user));
         navigate("/dashboard");
       }
     } catch (err) {
+      toast.error(err.message || "Login failed.");
       setError(err.message || "Login failed. Please try again.");
     } finally {
       setIsLoading(false);

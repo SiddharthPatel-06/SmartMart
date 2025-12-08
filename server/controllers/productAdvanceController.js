@@ -29,18 +29,6 @@ exports.getExpiringSoon = async (req, res) => {
   }
 };
 
-// 3. Get products that need to be reordered
-exports.getAutoReorderCandidates = async (req, res) => {
-  try {
-    const products = await Product.find({
-      $expr: { $lte: ["$quantity", "$reorderLevel"] },
-    });
-    res.status(200).json(products);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
 // 4. Search products by name or category
 exports.searchProducts = async (req, res) => {
   const { q } = req.query;
